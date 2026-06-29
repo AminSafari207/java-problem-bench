@@ -8,7 +8,7 @@ import java.util.List;
 import org.example.jpb.annotation.Case;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
-import org.example.jpb.model.TestCase;
+import org.example.jpb.core.TestCase;
 import org.example.jpb.util.Console;
 import org.example.jpb.util.ReflectionExecutor;
 import org.example.jpb.util.ResultComparator;
@@ -33,7 +33,7 @@ public class ProblemRunner {
 		Problem problem = problemClass.getAnnotation(Problem.class);
 
 		Console.print(
-			"\n" + Console.gray("---") + "Problem: " + Console.green(problem.value()) + Console.gray("---")
+			"\n" + Console.gray("---") + "Problem: " + Console.blue(problem.value()) + Console.gray("---")
 		);
 
 		for (Method solution : solutions) {
@@ -118,7 +118,9 @@ public class ProblemRunner {
 		List<Method> solutions = new ArrayList<>();
 
 		for (Method method : problemClass.getDeclaredMethods()) {
-			if (method.isAnnotationPresent(Solution.class)) {
+			if (!method.isAnnotationPresent(Solution.class)) continue;
+
+			if (method.getParameterCount() != 1) {
 				throw new IllegalStateException(
 					"@Solution method must have exactly 1 parameter: " + method.getName()
 				);
@@ -132,7 +134,6 @@ public class ProblemRunner {
 
 	private void runSolution(Object instance, Method solution, List<TestCase<?, ?>> testCases) {
 		Solution solutionAnnotation = solution.getAnnotation(Solution.class);
-		String solutionName = solutionAnnotation.value();
 
 		Console.print("  " + Console.gray("Solution:") + " " + solutionAnnotation.value());
 

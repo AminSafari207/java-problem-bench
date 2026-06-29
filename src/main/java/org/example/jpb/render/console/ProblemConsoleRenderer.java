@@ -6,7 +6,7 @@ import org.example.jpb.core.model.ProblemResult;
 import org.example.jpb.core.model.SolutionResult;
 import org.example.jpb.util.Console;
 
-public class ConsoleRenderer {
+public class ConsoleProblemRenderer {
 
 	public void render(ProblemResult result) {
 		renderProblemHeader(result);

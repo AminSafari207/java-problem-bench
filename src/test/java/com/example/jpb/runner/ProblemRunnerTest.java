@@ -1,11 +1,12 @@
 package com.example.jpb.runner;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import org.example.jpb.annotation.Case;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
+import org.example.jpb.core.model.ProblemResult;
 import org.example.jpb.core.model.TestCase;
 import org.example.jpb.core.runner.ProblemRunner;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,10 @@ class ProblemRunnerTest {
 
 	@Test
 	void shouldRunAllCasesAndAllSolutionsWithoutThrowing() {
-		assertDoesNotThrow(() -> new ProblemRunner().run(DummyProblem.class));
+		ProblemResult result = ProblemRunner.run(DummyProblem.class);
+
+		assertNotNull(result);
+		assertEquals("Dummy", result.problemName());
+		assertEquals(2, result.solutions().size());
 	}
 }

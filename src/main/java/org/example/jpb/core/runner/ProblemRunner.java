@@ -8,6 +8,9 @@ import java.util.List;
 import org.example.jpb.annotation.Case;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
+import org.example.jpb.core.model.CaseResult;
+import org.example.jpb.core.model.ProblemResult;
+import org.example.jpb.core.model.SolutionResult;
 import org.example.jpb.core.model.TestCase;
 import org.example.jpb.util.Console;
 import org.example.jpb.util.ReflectionExecutor;
@@ -15,12 +18,14 @@ import org.example.jpb.util.ResultComparator;
 
 public class ProblemRunner {
 
-	public void run(Class<?> problemClass) {
+	public static ProblemResult run(Class<?> problemClass) {
 		validateProblemClass(problemClass);
 
-		Object problemInstance = instantiate(problemClass);
-		List<TestCase<?, ?>> testCases = collectCases(problemClass, problemInstance);
-		List<Method> solutions = collectSolutions(problemClass);
+		ProblemRunner runner = new ProblemRunner();
+
+		Object problemInstance = runner.instantiate(problemClass);
+		List<TestCase<?, ?>> testCases = runner.collectCases(problemClass, problemInstance);
+		List<Method> solutions = runner.collectSolutions(problemClass);
 
 		if (testCases.isEmpty()) {
 			throw new IllegalStateException("No @Case found in " + problemClass.getName());
@@ -36,13 +41,19 @@ public class ProblemRunner {
 			"\n" + Console.gray("---") + "Problem: " + Console.blue(problem.value()) + Console.gray("---")
 		);
 
+		List<SolutionResult> solutionResults = new ArrayList<>();
+
 		for (Method solution : solutions) {
-			runSolution(problemInstance, solution, testCases);
+			SolutionResult result = runner.runSolution(problemInstance, solution, testCases);
+
+			solutionResults.add(result);
 		}
+
+		return new ProblemResult(problem.value(), solutionResults);
 	}
 
-	private void validateProblemClass(Class<?> problemClass) {
-		if (!problemClass.isAnnotationPresent(Problem.class)) {
+	private static void validateProblemClass(Class<?> problemClass) {
+		if (problemClass == null || !problemClass.isAnnotationPresent(Problem.class)) {
 			throw new IllegalArgumentException(problemClass.getName() + " is not annotated with @Problem");
 		}
 	}
@@ -132,12 +143,13 @@ public class ProblemRunner {
 		return solutions;
 	}
 
-	private void runSolution(Object instance, Method solution, List<TestCase<?, ?>> testCases) {
+	private SolutionResult runSolution(Object instance, Method solution, List<TestCase<?, ?>> testCases) {
 		Solution solutionAnnotation = solution.getAnnotation(Solution.class);
 
 		Console.print("  " + Console.gray("Solution:") + " " + solutionAnnotation.value());
 
 		int passed = 0;
+		List<CaseResult> caseResults = new ArrayList<>();
 
 		for (TestCase<?, ?> testCase : testCases) {
 			Object actual = ReflectionExecutor.invoke(solution, instance, testCase.input());
@@ -160,6 +172,8 @@ public class ProblemRunner {
 		} else {
 			Console.warn(summary);
 		}
+
+		return new SolutionResult(solutionAnnotation.value(), caseResults);
 	}
 
 	private String formatValue(Object value) {

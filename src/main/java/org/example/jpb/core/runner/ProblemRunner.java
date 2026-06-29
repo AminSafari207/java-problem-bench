@@ -1,4 +1,4 @@
-package org.example.jpb.runner;
+package org.example.jpb.core.runner;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -8,7 +8,7 @@ import java.util.List;
 import org.example.jpb.annotation.Case;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
-import org.example.jpb.core.TestCase;
+import org.example.jpb.core.model.TestCase;
 import org.example.jpb.util.Console;
 import org.example.jpb.util.ReflectionExecutor;
 import org.example.jpb.util.ResultComparator;

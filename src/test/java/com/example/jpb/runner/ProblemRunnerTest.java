@@ -6,8 +6,8 @@ import java.util.List;
 import org.example.jpb.annotation.Case;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
-import org.example.jpb.core.TestCase;
-import org.example.jpb.runner.ProblemRunner;
+import org.example.jpb.core.model.TestCase;
+import org.example.jpb.core.runner.ProblemRunner;
 import org.junit.jupiter.api.Test;
 
 class ProblemRunnerTest {

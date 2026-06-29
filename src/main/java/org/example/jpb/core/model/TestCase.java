@@ -1,4 +1,4 @@
-package org.example.jpb.core;
+package org.example.jpb.core.model;
 
 import java.util.Objects;
 

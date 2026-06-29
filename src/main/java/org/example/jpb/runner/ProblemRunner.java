@@ -9,6 +9,7 @@ import org.example.jpb.annotation.Case;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
 import org.example.jpb.model.TestCase;
+import org.example.jpb.util.Console;
 import org.example.jpb.util.ReflectionExecutor;
 import org.example.jpb.util.ResultComparator;
 
@@ -31,7 +32,9 @@ public class ProblemRunner {
 
 		Problem problem = problemClass.getAnnotation(Problem.class);
 
-		System.out.println("Problem: " + problem.value());
+		Console.print(
+			"\n" + Console.gray("---") + "Problem: " + Console.green(problem.value()) + Console.gray("---")
+		);
 
 		for (Method solution : solutions) {
 			runSolution(problemInstance, solution, testCases);
@@ -131,7 +134,7 @@ public class ProblemRunner {
 		Solution solutionAnnotation = solution.getAnnotation(Solution.class);
 		String solutionName = solutionAnnotation.value();
 
-		System.out.println("Solution: " + solutionName);
+		Console.print("  " + Console.gray("Solution:") + " " + solutionAnnotation.value());
 
 		int passed = 0;
 
@@ -141,18 +144,21 @@ public class ProblemRunner {
 
 			if (ok) {
 				passed++;
-				System.out.printf("[PASS] %s%n" + testCase.name());
+				Console.print("    " + Console.green("[PASS]") + " " + testCase.name());
 			} else {
-				System.out.printf(
-					"[FAIL] %s expected=%s actual=%s%n",
-					testCase.name(),
-					formatValue(testCase.expected()),
-					formatValue(actual)
-				);
+				Console.print("    " + Console.red("[FAIL]") + " " + testCase.name());
+				Console.print("      " + Console.gray("expected:") + " " + formatValue(testCase.expected()));
+				Console.print("      " + Console.gray("actual:  ") + " " + formatValue(actual));
 			}
 		}
 
-		System.out.printf("Passed %d/%d%n", passed, testCases.size());
+		String summary = String.format("    Passed %d/%d", passed, testCases.size());
+
+		if (passed == testCases.size()) {
+			Console.success(summary);
+		} else {
+			Console.warn(summary);
+		}
 	}
 
 	private String formatValue(Object value) {

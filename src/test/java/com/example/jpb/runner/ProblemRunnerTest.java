@@ -9,6 +9,7 @@ import org.example.jpb.annotation.Solution;
 import org.example.jpb.core.model.ProblemResult;
 import org.example.jpb.core.model.TestCase;
 import org.example.jpb.core.runner.ProblemRunner;
+import org.example.jpb.render.console.ConsoleRenderer;
 import org.junit.jupiter.api.Test;
 
 class ProblemRunnerTest {
@@ -40,7 +41,11 @@ class ProblemRunnerTest {
 
 	@Test
 	void shouldRunAllCasesAndAllSolutionsWithoutThrowing() {
-		ProblemResult result = ProblemRunner.run(DummyProblem.class);
+		ProblemRunner runner = new ProblemRunner();
+		ProblemResult result = runner.run(DummyProblem.class);
+		ConsoleRenderer renderer = new ConsoleRenderer();
+
+		renderer.render(result);
 
 		assertNotNull(result);
 		assertEquals("Dummy", result.problemName());

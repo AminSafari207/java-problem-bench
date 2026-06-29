@@ -17,7 +17,7 @@ import org.example.jpb.util.ResultComparator;
 
 public class ProblemRunner {
 
-	public static ProblemResult run(Class<?> problemClass) {
+	public ProblemResult run(Class<?> problemClass) {
 		validateProblemClass(problemClass);
 
 		ProblemRunner runner = new ProblemRunner();

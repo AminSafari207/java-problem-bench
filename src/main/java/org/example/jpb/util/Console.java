@@ -17,36 +17,32 @@ public final class Console {
 		System.out.println(message);
 	}
 
-	public static void info(String message) {
-		System.out.println(BLUE + message + RESET);
+	public static void line() {
+		System.out.println();
 	}
 
-	public static void success(String message) {
-		System.out.println(GREEN + message + RESET);
+	public static void divider(char c, int width) {
+		print(String.valueOf(c).repeat(width));
 	}
 
-	public static void error(String message) {
-		System.err.println(RED + message + RESET);
+	public static String indent(int level) {
+		return "  ".repeat(Math.max(0, level));
 	}
 
-	public static void warn(String message) {
-		System.out.println(YELLOW + message + RESET);
-	}
-
-	public static void debug(String message) {
-		System.out.println(GRAY + message + RESET);
-	}
-
-	public static String blue(String text) {
-		return BLUE + text + RESET;
+	public static String red(String text) {
+		return RED + text + RESET;
 	}
 
 	public static String green(String text) {
 		return GREEN + text + RESET;
 	}
 
-	public static String red(String text) {
-		return RED + text + RESET;
+	public static String yellow(String text) {
+		return YELLOW + text + RESET;
+	}
+
+	public static String blue(String text) {
+		return BLUE + text + RESET;
 	}
 
 	public static String gray(String text) {

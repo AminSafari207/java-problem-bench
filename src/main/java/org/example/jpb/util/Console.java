@@ -1,5 +1,7 @@
 package org.example.jpb.util;
 
+import java.util.regex.Pattern;
+
 public final class Console {
 
 	private static final String RESET = "\u001B[0m";
@@ -15,6 +17,8 @@ public final class Console {
 	private static final String BOTTOM_RIGHT = "┘";
 	private static final String H = "─";
 	private static final String V = "│";
+
+	private static final Pattern ANSI_PATTERN = Pattern.compile("\\e\\[[0-9;]*m");
 
 	private Console() {
 		System.out.println("Console must not be instantiated");
@@ -46,8 +50,9 @@ public final class Console {
 	}
 
 	public static String padRight(String text, int width) {
-		if (text.length() >= width) return text;
-		return text + " ".repeat(width - text.length());
+		int visualLen = visualLength(text);
+		if (visualLen >= width) return text;
+		return text + " ".repeat(width - visualLen);
 	}
 
 	public static void section(String title, int width, int indent) {
@@ -77,5 +82,12 @@ public final class Console {
 
 	public static String gray(String text) {
 		return GRAY + text + RESET;
+	}
+
+	//
+
+	public static int visualLength(String text) {
+		if (text == null) return 0;
+		return ANSI_PATTERN.matcher(text).replaceAll("").length();
 	}
 }

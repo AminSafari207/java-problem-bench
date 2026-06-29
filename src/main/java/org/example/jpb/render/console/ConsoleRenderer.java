@@ -61,10 +61,15 @@ public class ConsoleRenderer {
 
 	private String formatValue(Object value) {
 		if (value == null) return "null";
-
-		if (value.getClass().isArray()) {
-			return Arrays.deepToString((Object[]) value);
-		}
+		if (value instanceof Object[] array) return Arrays.deepToString(array);
+		if (value instanceof int[] array) return Arrays.toString(array);
+		if (value instanceof long[] array) return Arrays.toString(array);
+		if (value instanceof byte[] array) return Arrays.toString(array);
+		if (value instanceof short[] array) return Arrays.toString(array);
+		if (value instanceof char[] array) return Arrays.toString(array);
+		if (value instanceof boolean[] array) return Arrays.toString(array);
+		if (value instanceof float[] array) return Arrays.toString(array);
+		if (value instanceof double[] array) return Arrays.toString(array);
 
 		return String.valueOf(value);
 	}

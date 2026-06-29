@@ -12,7 +12,6 @@ import org.example.jpb.core.model.CaseResult;
 import org.example.jpb.core.model.ProblemResult;
 import org.example.jpb.core.model.SolutionResult;
 import org.example.jpb.core.model.TestCase;
-import org.example.jpb.util.Console;
 import org.example.jpb.util.ReflectionExecutor;
 import org.example.jpb.util.ResultComparator;
 
@@ -36,11 +35,6 @@ public class ProblemRunner {
 		}
 
 		Problem problem = problemClass.getAnnotation(Problem.class);
-
-		Console.print(
-			"\n" + Console.gray("---") + "Problem: " + Console.blue(problem.value()) + Console.gray("---")
-		);
-
 		List<SolutionResult> solutionResults = new ArrayList<>();
 
 		for (Method solution : solutions) {
@@ -145,32 +139,13 @@ public class ProblemRunner {
 
 	private SolutionResult runSolution(Object instance, Method solution, List<TestCase<?, ?>> testCases) {
 		Solution solutionAnnotation = solution.getAnnotation(Solution.class);
-
-		Console.print("  " + Console.gray("Solution:") + " " + solutionAnnotation.value());
-
-		int passed = 0;
 		List<CaseResult> caseResults = new ArrayList<>();
 
 		for (TestCase<?, ?> testCase : testCases) {
 			Object actual = ReflectionExecutor.invoke(solution, instance, testCase.input());
 			boolean ok = ResultComparator.areEqual(testCase.expected(), actual);
 
-			if (ok) {
-				passed++;
-				Console.print("    " + Console.green("[PASS]") + " " + testCase.name());
-			} else {
-				Console.print("    " + Console.red("[FAIL]") + " " + testCase.name());
-				Console.print("      " + Console.gray("expected:") + " " + formatValue(testCase.expected()));
-				Console.print("      " + Console.gray("actual:  ") + " " + formatValue(actual));
-			}
-		}
-
-		String summary = String.format("    Passed %d/%d", passed, testCases.size());
-
-		if (passed == testCases.size()) {
-			Console.success(summary);
-		} else {
-			Console.warn(summary);
+			caseResults.add(new CaseResult(testCase.name(), testCase.expected(), actual, ok));
 		}
 
 		return new SolutionResult(solutionAnnotation.value(), caseResults);

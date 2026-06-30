@@ -49,8 +49,8 @@ public class ProblemConsoleRenderer {
 		Console.print(base + Console.red("[FAIL]") + " " + caseResult.caseName());
 		Console.line();
 
-		keyValue(3, "expected", caseResult.expected());
-		keyValue(3, "actual", caseResult.actual());
+		keyValue(3, "Expected", caseResult.expected());
+		keyValue(3, "Actual", caseResult.actual());
 
 		Console.line();
 	}
@@ -69,7 +69,7 @@ public class ProblemConsoleRenderer {
 	}
 
 	private void keyValue(int indent, String key, Object value) {
-		Console.print(Console.indent(indent) + String.format("%-9s : %s", key, formatValue(value)));
+		Console.print(Console.indent(indent) + String.format("%-9s -> %s", key, formatValue(value)));
 	}
 
 	private String formatValue(Object value) {

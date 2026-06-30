@@ -42,7 +42,7 @@ public class ProblemRunner {
 			solutionResults.add(result);
 		}
 
-		return new ProblemResult(problem.value(), solutionResults);
+		return new ProblemResult(problem.name(), solutionResults);
 	}
 
 	private void validateProblemClass(Class<?> problemClass) {
@@ -154,6 +154,6 @@ public class ProblemRunner {
 			caseResults.add(new CaseResult(testCase.name(), testCase.expected(), actual, ok));
 		}
 
-		return new SolutionResult(solutionAnnotation.value(), caseResults);
+		return new SolutionResult(solutionAnnotation.name(), caseResults);
 	}
 }

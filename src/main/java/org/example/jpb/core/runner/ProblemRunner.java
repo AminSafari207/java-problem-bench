@@ -3,7 +3,6 @@ package org.example.jpb.core.runner;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import org.example.jpb.annotation.Case;
@@ -22,7 +21,7 @@ public class ProblemRunner {
 		validateProblemClass(problemClass);
 
 		Object problemInstance = instantiate(problemClass);
-		List<TestCase<?, ?>> testCases = collectCases(problemClass, problemInstance);
+		List<TestCase<?>> testCases = collectCases(problemClass, problemInstance);
 		List<Method> solutions = collectSolutions(problemClass);
 
 		if (testCases.isEmpty()) {
@@ -66,8 +65,8 @@ public class ProblemRunner {
 		}
 	}
 
-	private List<TestCase<?, ?>> collectCases(Class<?> problemClass, Object problemInstance) {
-		List<TestCase<?, ?>> testCases = new ArrayList<>();
+	private List<TestCase<?>> collectCases(Class<?> problemClass, Object problemInstance) {
+		List<TestCase<?>> testCases = new ArrayList<>();
 
 		for (Method method : problemClass.getDeclaredMethods()) {
 			if (!method.isAnnotationPresent(Case.class)) continue;
@@ -94,20 +93,20 @@ public class ProblemRunner {
 		return testCases;
 	}
 
-	private List<TestCase<?, ?>> extractCases(Object value, String source) {
+	private List<TestCase<?>> extractCases(Object value, String source) {
 		if (value == null) {
 			throw new IllegalStateException(source + " returned null");
 		}
 
-		if (value instanceof TestCase<?, ?> testCase) {
+		if (value instanceof TestCase<?> testCase) {
 			return List.of(testCase);
 		}
 
 		if (value instanceof List<?> list) {
-			List<TestCase<?, ?>> testCases = new ArrayList<>();
+			List<TestCase<?>> testCases = new ArrayList<>();
 
 			for (Object element : list) {
-				if (!(element instanceof TestCase<?, ?> testCase)) {
+				if (!(element instanceof TestCase<?> testCase)) {
 					throw new IllegalStateException(source + " contains non-TestCase element: " + element);
 				}
 
@@ -143,15 +142,15 @@ public class ProblemRunner {
 		return solutions;
 	}
 
-	private SolutionResult runSolution(Object instance, Method solution, List<TestCase<?, ?>> testCases) {
+	private SolutionResult runSolution(Object instance, Method solution, List<TestCase<?>> testCases) {
 		Solution solutionAnnotation = solution.getAnnotation(Solution.class);
 		List<CaseResult> caseResults = new ArrayList<>();
 
-		for (TestCase<?, ?> testCase : testCases) {
-			Object actual = ReflectionExecutor.invoke(solution, instance, testCase.input());
-			boolean ok = ResultComparator.areEqual(testCase.expected(), actual);
+		for (TestCase<?> testCase : testCases) {
+			Object actual = ReflectionExecutor.invoke(solution, instance, testCase.arguments().values());
+			boolean isPassed = ResultComparator.areEqual(testCase.expected(), actual);
 
-			caseResults.add(new CaseResult(testCase.name(), testCase.expected(), actual, ok));
+			caseResults.add(new CaseResult(testCase.name(), testCase.expected(), actual, isPassed));
 		}
 
 		return new SolutionResult(solutionAnnotation.name(), caseResults);

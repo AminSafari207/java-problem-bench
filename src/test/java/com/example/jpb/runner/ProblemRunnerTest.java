@@ -6,6 +6,7 @@ import java.util.List;
 import org.example.jpb.annotation.Case;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
+import org.example.jpb.core.model.Arguments;
 import org.example.jpb.core.model.ProblemResult;
 import org.example.jpb.core.model.TestCase;
 import org.example.jpb.core.runner.ProblemRunner;
@@ -18,14 +19,17 @@ class ProblemRunnerTest {
 	static class DummyProblem {
 
 		@Case
-		public List<TestCase<Integer, Integer>> cases() {
-			return List.of(new TestCase<>("one", 1, 2), new TestCase<>("two", 2, 3));
+		public List<TestCase<Integer>> cases() {
+			return List.of(
+				new TestCase<>("one", Arguments.none(), 2),
+				new TestCase<>("two", Arguments.single(2), 3)
+			);
 		}
 
 		@Case
-		public List<TestCase<Integer, Integer>> cases2 = List.of(
-			new TestCase<>("three", 150, 151),
-			new TestCase<>("four", 300, 301)
+		public List<TestCase<Integer>> cases2 = List.of(
+			new TestCase<>("three", Arguments.single(150), 151),
+			new TestCase<>("four", Arguments.single(300), 301)
 		);
 
 		@Solution(name = "add one")

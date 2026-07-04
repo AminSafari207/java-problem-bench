@@ -63,6 +63,8 @@ public class ProblemConsoleRenderer {
 
 		if (solution.allPassed()) {
 			Console.print(Console.indent(2) + Console.green(text));
+		} else if (passed == 0) {
+			Console.print(Console.indent(2) + Console.red(text));
 		} else {
 			Console.print(Console.indent(2) + Console.yellow(text));
 		}

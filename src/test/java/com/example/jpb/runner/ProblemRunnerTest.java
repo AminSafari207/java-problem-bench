@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import org.example.jpb.annotation.Case;
+import org.example.jpb.annotation.Contract;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
 import org.example.jpb.core.model.Arguments;
+import org.example.jpb.core.model.ProblemContract;
 import org.example.jpb.core.model.ProblemResult;
 import org.example.jpb.core.model.TestCase;
 import org.example.jpb.core.runner.ProblemRunner;
@@ -18,10 +20,13 @@ class ProblemRunnerTest {
 	@Problem(name = "Dummy")
 	static class DummyProblem {
 
+		@Contract
+		static final ProblemContract contract = ProblemContract.input(Integer.class).returns(Integer.class);
+
 		@Case
 		public List<TestCase<Integer>> cases() {
 			return List.of(
-				new TestCase<>("one", Arguments.none(), 2),
+				new TestCase<>("one", Arguments.single(1), 2),
 				new TestCase<>("two", Arguments.single(2), 3)
 			);
 		}

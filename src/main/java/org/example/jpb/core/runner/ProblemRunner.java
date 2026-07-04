@@ -37,157 +37,21 @@ public class ProblemRunner {
 		return new ProblemResult(problem.name(), solutionResults);
 	}
 
-	//#################################
-	//## Validators ###################
-	//#################################
-
-	private void validateProblemClass(Class<?> problemClass) {
-		if (problemClass == null) {
-			throw new IllegalArgumentException("problemClass must not be null");
-		}
-
-		if (!problemClass.isAnnotationPresent(Problem.class)) {
-			throw new IllegalArgumentException(problemClass.getName() + " is not annotated with @Problem");
-		}
-	}
-
-	private void validateArtifacts(
-		Class<?> problemClass,
-		ProblemContract contract,
-		List<TestCase<?>> testCases,
-		List<Method> solutions
-	) {
-		if (testCases.isEmpty()) {
-			throw new IllegalStateException("No @Case found in " + problemClass.getName());
-		}
-
-		if (solutions.isEmpty()) {
-			throw new IllegalStateException("No @Solution found in " + problemClass.getName());
-		}
-
-		validateCases(problemClass, contract, testCases);
-		validateSolutions(problemClass, contract, solutions);
-	}
-
-	private void validateCases(Class<?> problemClass, ProblemContract contract, List<TestCase<?>> testCases) {
-		Class<?>[] expectedParams = contract.parameterTypes();
-		Class<?> expectedReturnType = contract.returnType();
-
-		for (TestCase<?> testCase : testCases) {
-			Object[] args = testCase.arguments().values();
-
-			if (args.length != expectedParams.length) {
-				throw new IllegalStateException(
-					"Test case '" +
-					testCase.name() +
-					"' in " +
-					problemClass.getName() +
-					" has " +
-					args.length +
-					" argument(s), but contract requires " +
-					expectedParams.length
-				);
-			}
-
-			for (int i = 0; i < args.length; i++) {
-				if (!isValueCompatible(expectedParams[i], args[i])) {
-					throw new IllegalStateException(
-						"Test case '" +
-						testCase.name() +
-						"' in " +
-						problemClass.getName() +
-						"' has incompatible argument at index " +
-						i +
-						": expected " +
-						expectedParams[i].getName() +
-						", but got " +
-						describeValueType(args[i])
-					);
-				}
-			}
-
-			if (!isValueCompatible(expectedReturnType, testCase.expected())) {
-				throw new IllegalStateException(
-					"Test case '" +
-					testCase.name() +
-					"' in " +
-					problemClass.getName() +
-					"' has incompatible expected value: expected " +
-					expectedReturnType.getName() +
-					", got " +
-					describeValueType(testCase.expected())
-				);
-			}
-		}
-	}
-
-	private void validateSolutions(Class<?> problemClass, ProblemContract contract, List<Method> solutions) {
-		for (Method solutionMethod : solutions) {
-			validateSolutionSignature(problemClass, contract, solutionMethod);
-		}
-	}
-
-	private void validateSolutionSignature(
-		Class<?> problemClass,
-		ProblemContract contract,
-		Method solutionMethod
-	) {
-		Class<?>[] actualParams = solutionMethod.getParameterTypes();
-		Class<?>[] expectedParams = contract.parameterTypes();
-
-		if (actualParams.length != expectedParams.length) {
-			throw new IllegalStateException(
-				"@Solution method '" +
-				solutionMethod.getName() +
-				"' in " +
-				problemClass.getName() +
-				" has " +
-				actualParams.length +
-				" parameter(s), but contract requires " +
-				expectedParams.length
-			);
-		}
-
-		for (int i = 0; i < expectedParams.length; i++) {
-			if (!sameType(actualParams[i], expectedParams[i])) {
-				throw new IllegalStateException(
-					"@Solution method '" +
-					solutionMethod.getName() +
-					"' in " +
-					problemClass.getName() +
-					"' has incompatible parameter type at index " +
-					i +
-					": expected " +
-					expectedParams[i].getName() +
-					", got " +
-					actualParams[i].getName()
-				);
-			}
-		}
-
-		if (!sameType(solutionMethod.getReturnType(), contract.returnType())) {
-			throw new IllegalStateException(
-				"@Solution method '" +
-				solutionMethod.getName() +
-				"' in " +
-				problemClass.getName() +
-				"' has incompatible return type: expected " +
-				contract.returnType().getName() +
-				", got " +
-				solutionMethod.getReturnType().getName()
-			);
-		}
-	}
-
-	//#################################
 	private Object instantiate(Class<?> problemClass) {
 		try {
 			var constructor = problemClass.getDeclaredConstructor();
 			constructor.setAccessible(true);
 
 			return constructor.newInstance();
+		} catch (NoSuchMethodException e) {
+			throw new IllegalStateException(
+				"Invalid problem class: " +
+				problemClass.getName() +
+				" must declare an accessible no-argument constructor",
+				e
+			);
 		} catch (ReflectiveOperationException e) {
-			throw new RuntimeException("Failed to instantiate " + problemClass.getName(), e);
+			throw new RuntimeException("Failed to instantiate problem class: " + problemClass.getName(), e);
 		}
 	}
 
@@ -295,7 +159,10 @@ public class ProblemRunner {
 
 				testCases.addAll(extractCases(value, "@Case field " + field.getName()));
 			} catch (IllegalAccessException e) {
-				throw new RuntimeException("Failed to access field: " + field.getName(), e);
+				throw new RuntimeException(
+					"Failed to access @Case field '" + field.getName() + "' in " + problemClass.getName(),
+					e
+				);
 			}
 		}
 
@@ -304,7 +171,7 @@ public class ProblemRunner {
 
 	private List<TestCase<?>> extractCases(Object value, String source) {
 		if (value == null) {
-			throw new IllegalStateException(source + " returned null");
+			throw new IllegalStateException(source + " produced null");
 		}
 
 		if (value instanceof TestCase<?> testCase) {
@@ -314,9 +181,17 @@ public class ProblemRunner {
 		if (value instanceof List<?> list) {
 			List<TestCase<?>> testCases = new ArrayList<>();
 
-			for (Object element : list) {
+			for (int i = 0; i < list.size(); i++) {
+				Object element = list.get(i);
+
 				if (!(element instanceof TestCase<?> testCase)) {
-					throw new IllegalStateException(source + " contains non-TestCase element: " + element);
+					throw new IllegalStateException(
+						source +
+						" contains non-TestCase element at index " +
+						i +
+						": " +
+						describeValueType(element)
+					);
 				}
 
 				testCases.add(testCase);
@@ -326,7 +201,7 @@ public class ProblemRunner {
 		}
 
 		throw new IllegalStateException(
-			source + " must be TestCase or List<TestCase>, but got: " + value.getClass()
+			source + " must produce TestCase or List<TestCase>, but got " + value.getClass().getName()
 		);
 	}
 
@@ -350,13 +225,177 @@ public class ProblemRunner {
 		List<CaseResult> caseResults = new ArrayList<>();
 
 		for (TestCase<?> testCase : testCases) {
-			Object actual = ReflectionExecutor.invoke(solution, instance, testCase.arguments().values());
+			Object actual;
+
+			try {
+				actual = ReflectionExecutor.invoke(solution, instance, testCase.arguments().values());
+			} catch (RuntimeException e) {
+				throw new RuntimeException(
+					"Execution failed: @Solution method '" +
+					solution.getName() +
+					"' failed for test case '" +
+					testCase.name() +
+					"'",
+					e
+				);
+			}
+
 			boolean isPassed = ResultComparator.areEqual(testCase.expected(), actual);
 
 			caseResults.add(new CaseResult(testCase.name(), testCase.expected(), actual, isPassed));
 		}
 
 		return new SolutionResult(solutionAnnotation.name(), caseResults);
+	}
+
+	//#################################
+	//## Validators ###################
+	//#################################
+
+	private void validateProblemClass(Class<?> problemClass) {
+		if (problemClass == null) {
+			throw new IllegalArgumentException(
+				"Invalid problem class: " + problemClass.getName() + " must not be null"
+			);
+		}
+
+		if (!problemClass.isAnnotationPresent(Problem.class)) {
+			throw new IllegalArgumentException(
+				"Invalid problem class: " + problemClass.getName() + " is not annotated with @Problem"
+			);
+		}
+	}
+
+	private void validateArtifacts(
+		Class<?> problemClass,
+		ProblemContract contract,
+		List<TestCase<?>> testCases,
+		List<Method> solutions
+	) {
+		if (testCases.isEmpty()) {
+			throw new IllegalStateException(
+				"Invalid problem definition: no @Case found in " + problemClass.getName()
+			);
+		}
+
+		if (solutions.isEmpty()) {
+			throw new IllegalStateException(
+				"Invalid problem definition: no @Solution found in " + problemClass.getName()
+			);
+		}
+
+		validateCases(problemClass, contract, testCases);
+		validateSolutions(problemClass, contract, solutions);
+	}
+
+	private void validateCases(Class<?> problemClass, ProblemContract contract, List<TestCase<?>> testCases) {
+		Class<?>[] expectedParams = contract.parameterTypes();
+		Class<?> expectedReturnType = contract.returnType();
+
+		for (TestCase<?> testCase : testCases) {
+			Object[] args = testCase.arguments().values();
+
+			if (args.length != expectedParams.length) {
+				throw new IllegalStateException(
+					"Test case '" +
+					testCase.name() +
+					"' in " +
+					problemClass.getName() +
+					" has " +
+					args.length +
+					" argument(s), but contract requires " +
+					expectedParams.length
+				);
+			}
+
+			for (int i = 0; i < args.length; i++) {
+				if (!isValueCompatible(expectedParams[i], args[i])) {
+					throw new IllegalStateException(
+						"Test case '" +
+						testCase.name() +
+						"' in " +
+						problemClass.getName() +
+						"' has incompatible argument at index " +
+						i +
+						": expected " +
+						expectedParams[i].getName() +
+						", but got " +
+						describeValueType(args[i])
+					);
+				}
+			}
+
+			if (!isValueCompatible(expectedReturnType, testCase.expected())) {
+				throw new IllegalStateException(
+					"Test case '" +
+					testCase.name() +
+					"' in " +
+					problemClass.getName() +
+					"' has incompatible expected value: expected " +
+					expectedReturnType.getName() +
+					", but got " +
+					describeValueType(testCase.expected())
+				);
+			}
+		}
+	}
+
+	private void validateSolutions(Class<?> problemClass, ProblemContract contract, List<Method> solutions) {
+		for (Method solutionMethod : solutions) {
+			validateSolutionSignature(problemClass, contract, solutionMethod);
+		}
+	}
+
+	private void validateSolutionSignature(
+		Class<?> problemClass,
+		ProblemContract contract,
+		Method solutionMethod
+	) {
+		Class<?>[] actualParams = solutionMethod.getParameterTypes();
+		Class<?>[] expectedParams = contract.parameterTypes();
+
+		if (actualParams.length != expectedParams.length) {
+			throw new IllegalStateException(
+				"@Solution method '" +
+				solutionMethod.getName() +
+				"' in " +
+				problemClass.getName() +
+				" has " +
+				actualParams.length +
+				" parameter(s), but contract requires " +
+				expectedParams.length
+			);
+		}
+
+		for (int i = 0; i < expectedParams.length; i++) {
+			if (!sameType(actualParams[i], expectedParams[i])) {
+				throw new IllegalStateException(
+					"@Solution method '" +
+					solutionMethod.getName() +
+					"' in " +
+					problemClass.getName() +
+					"' has incompatible parameter type at index " +
+					i +
+					": expected " +
+					expectedParams[i].getName() +
+					", got " +
+					actualParams[i].getName()
+				);
+			}
+		}
+
+		if (!sameType(solutionMethod.getReturnType(), contract.returnType())) {
+			throw new IllegalStateException(
+				"@Solution method '" +
+				solutionMethod.getName() +
+				"' in " +
+				problemClass.getName() +
+				"' has incompatible return type: expected " +
+				contract.returnType().getName() +
+				", got " +
+				solutionMethod.getReturnType().getName()
+			);
+		}
 	}
 
 	//#################################

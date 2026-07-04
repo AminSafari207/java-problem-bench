@@ -177,6 +177,7 @@ If invocation throws, the runner wraps it in a `RuntimeException` with context a
 
 Assembles all `SolutionResult` objects into a `ProblemResult` and returns it. Rendering is intentionally outside the runner.
 
+---
 ## Utilities
 
 ### ReflectionExecutor

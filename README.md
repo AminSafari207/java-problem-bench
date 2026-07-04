@@ -1,5 +1,6 @@
-# java-problem-bench
+# **Java Problem Benchmark**
 
+---
 This is a personal project. i'm trying to figure out what it would look like to define coding problems the way you'd write them on LeetCode.
 
 There are contract, cases and solutions but in plain Java classes instead of scattering logic across a bunch of test files.

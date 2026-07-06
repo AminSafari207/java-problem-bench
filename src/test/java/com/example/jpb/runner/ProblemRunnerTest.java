@@ -18,20 +18,20 @@ class ProblemRunnerTest {
 	static class DummyProblem {
 
 		@Contract
-		static final ProblemContract contract = ProblemContract.input(Integer.class).returns(Integer.class);
+		static final ProblemContract contract = ProblemContract.accepts(Integer.class).expects(Integer.class);
 
 		@Case
-		public List<TestCase<Integer>> cases() {
+		public List<TestCase> cases() {
 			return List.of(
-				new TestCase<>("one", Arguments.single(1), 2),
-				new TestCase<>("two", Arguments.single(2), 3)
+				new TestCase("one", Arguments.single(1), 2),
+				new TestCase("two", Arguments.single(2), 3)
 			);
 		}
 
 		@Case
-		public List<TestCase<Integer>> cases2 = List.of(
-			new TestCase<>("three", Arguments.single(150), 151),
-			new TestCase<>("four", Arguments.single(300), 301)
+		public List<TestCase> cases2 = List.of(
+			new TestCase("three", Arguments.single(150), 151),
+			new TestCase("four", Arguments.single(300), 301)
 		);
 
 		@Solution(name = "add one")

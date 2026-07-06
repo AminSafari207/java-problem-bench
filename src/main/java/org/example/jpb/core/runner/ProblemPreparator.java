@@ -21,7 +21,7 @@ public class ProblemPreparator {
 		Problem problem = problemClass.getAnnotation(Problem.class);
 		Object problemInstance = instantiate(problemClass);
 		ProblemContract contract = readContract(problemClass);
-		List<TestCase<?>> testCases = collectCases(problemClass, problemInstance);
+		List<TestCase> testCases = collectCases(problemClass, problemInstance);
 		List<Method> solutionMethods = collectSolutions(problemClass);
 
 		validateArtifacts(problemClass, contract, testCases, solutionMethods);
@@ -137,8 +137,8 @@ public class ProblemPreparator {
 		}
 	}
 
-	private List<TestCase<?>> collectCases(Class<?> problemClass, Object problemInstance) {
-		List<TestCase<?>> testCases = new ArrayList<>();
+	private List<TestCase> collectCases(Class<?> problemClass, Object problemInstance) {
+		List<TestCase> testCases = new ArrayList<>();
 
 		for (Method method : problemClass.getDeclaredMethods()) {
 			if (!method.isAnnotationPresent(Case.class)) continue;
@@ -168,22 +168,22 @@ public class ProblemPreparator {
 		return testCases;
 	}
 
-	private List<TestCase<?>> extractCases(Object value, String source) {
+	private List<TestCase> extractCases(Object value, String source) {
 		if (value == null) {
 			throw new IllegalStateException(source + " produced null");
 		}
 
-		if (value instanceof TestCase<?> testCase) {
+		if (value instanceof TestCase testCase) {
 			return List.of(testCase);
 		}
 
 		if (value instanceof List<?> list) {
-			List<TestCase<?>> testCases = new ArrayList<>();
+			List<TestCase> testCases = new ArrayList<>();
 
 			for (int i = 0; i < list.size(); i++) {
 				Object element = list.get(i);
 
-				if (!(element instanceof TestCase<?> testCase)) {
+				if (!(element instanceof TestCase testCase)) {
 					throw new IllegalStateException(
 						source +
 						" contains non-TestCase element at index " +
@@ -219,10 +219,10 @@ public class ProblemPreparator {
 		return solutions;
 	}
 
-	private List<PreparedCase> mapCases(List<TestCase<?>> testCases) {
+	private List<PreparedCase> mapCases(List<TestCase> testCases) {
 		List<PreparedCase> preparedCases = new ArrayList<>();
 
-		for (TestCase<?> testCase : testCases) {
+		for (TestCase testCase : testCases) {
 			preparedCases.add(new PreparedCase(testCase.name(), testCase.arguments(), testCase.expected()));
 		}
 
@@ -262,7 +262,7 @@ public class ProblemPreparator {
 	private void validateArtifacts(
 		Class<?> problemClass,
 		ProblemContract contract,
-		List<TestCase<?>> testCases,
+		List<TestCase> testCases,
 		List<Method> solutions
 	) {
 		if (testCases.isEmpty()) {
@@ -281,11 +281,11 @@ public class ProblemPreparator {
 		validateSolutions(problemClass, contract, solutions);
 	}
 
-	private void validateCases(Class<?> problemClass, ProblemContract contract, List<TestCase<?>> testCases) {
+	private void validateCases(Class<?> problemClass, ProblemContract contract, List<TestCase> testCases) {
 		Class<?>[] expectedParams = contract.parameterTypes();
 		Class<?> expectedReturnType = contract.returnType();
 
-		for (TestCase<?> testCase : testCases) {
+		for (TestCase testCase : testCases) {
 			Object[] args = testCase.arguments().values();
 
 			if (args.length != expectedParams.length) {

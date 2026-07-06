@@ -7,9 +7,8 @@ import org.example.jpb.annotation.Case;
 import org.example.jpb.annotation.Contract;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
-import org.example.jpb.core.benchmark.BenchmarkRunner;
 import org.example.jpb.core.model.*;
-import org.example.jpb.core.runner.ProblemRunner;
+import org.example.jpb.core.runner.ProblemExecutor;
 import org.example.jpb.render.console.ProblemConsoleRenderer;
 import org.junit.jupiter.api.Test;
 
@@ -42,17 +41,31 @@ class ProblemRunnerTest {
 
 		@Solution(name = "add two, subtract 1")
 		public Integer addTwoSubOne(Integer input) {
-			return input + 2 - 1;
+			return input + 3 - 1;
 		}
 	}
 
 	@Test
 	void shouldRunAllCasesAndAllSolutionsWithoutThrowing() {
-		ProblemRunner problemRunner = new ProblemRunner();
-		ProblemResult problemResult = problemRunner.run(DummyProblem.class);
+		BenchmarkConfig benchmarkConfig = BenchmarkConfig
+			.builder()
+			.warmupIterations(1000)
+			.measurementIterations(10000)
+			.build();
+
+		ProblemExecutor problemExecutor = new ProblemExecutor();
+		ProblemExecutionResult problemExecutionResult = problemExecutor.execute(
+			DummyProblem.class,
+			benchmarkConfig
+		);
+
+		ProblemResult problemResult = problemExecutionResult.problemResult();
+		ProblemBenchmarkResult problemBenchmarkResult = problemExecutionResult.problemBenchmarkResult();
+
 		ProblemConsoleRenderer renderer = new ProblemConsoleRenderer();
 
-		renderer.render(problemResult);
+		renderer.renderProblemResult(problemResult);
+		renderer.renderBenchmarkResult(problemBenchmarkResult);
 
 		assertNotNull(problemResult);
 		assertEquals("Dummy", problemResult.problemName());

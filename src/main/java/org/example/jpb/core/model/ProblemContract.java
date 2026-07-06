@@ -17,7 +17,7 @@ public final class ProblemContract {
 		this.returnType = returnType;
 	}
 
-	public static ReturnStep input(Class<?>... parameterTypes) {
+	public static ReturnStep accepts(Class<?>... parameterTypes) {
 		return returnType -> new ProblemContract(parameterTypes, returnType);
 	}
 
@@ -39,6 +39,6 @@ public final class ProblemContract {
 
 	@FunctionalInterface
 	public interface ReturnStep {
-		ProblemContract returns(Class<?> returnType);
+		ProblemContract expects(Class<?> returnType);
 	}
 }

@@ -9,4 +9,15 @@ public record PreparedProblem(
 	ProblemContract contract,
 	List<PreparedCase> cases,
 	List<PreparedSolution> solutions
-) {}
+) {
+	public PreparedProblem withNewSolutions(List<PreparedSolution> newPreparedSolutions) {
+		return new PreparedProblem(
+			problemName,
+			problemClass,
+			problemInstance,
+			contract,
+			cases,
+			newPreparedSolutions
+		);
+	}
+}

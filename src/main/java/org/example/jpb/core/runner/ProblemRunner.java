@@ -51,7 +51,7 @@ public class ProblemRunner {
 
 			try {
 				actual =
-					ReflectionExecutor.invoke(preparedSolution.method(), instance, testCase.newArguments());
+					ReflectionExecutor.invoke(instance, preparedSolution.method(), testCase.newArguments());
 			} catch (RuntimeException e) {
 				throw new RuntimeException(
 					"Execution failed: @Solution method '" +

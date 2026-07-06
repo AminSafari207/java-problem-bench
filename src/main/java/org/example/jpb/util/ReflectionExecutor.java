@@ -9,11 +9,11 @@ public final class ReflectionExecutor {
 		System.out.println("ReflectionExecutor must not be instantiated");
 	}
 
-	public static Object invoke(Method method, Object target, Object... args) {
+	public static Object invoke(Object instance, Method method, Object... args) {
 		try {
 			method.setAccessible(true);
 
-			return method.invoke(target, args);
+			return method.invoke(instance, args);
 		} catch (InvocationTargetException e) {
 			Throwable cause = e.getCause();
 

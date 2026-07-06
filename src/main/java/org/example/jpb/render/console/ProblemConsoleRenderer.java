@@ -61,7 +61,7 @@ public class ProblemConsoleRenderer {
 
 		String text = "Summary: " + passed + " / " + total + " passed";
 
-		if (solution.allPassed()) {
+		if (solution.passed()) {
 			Console.print(Console.indent(2) + Console.green(text));
 		} else if (passed == 0) {
 			Console.print(Console.indent(2) + Console.red(text));

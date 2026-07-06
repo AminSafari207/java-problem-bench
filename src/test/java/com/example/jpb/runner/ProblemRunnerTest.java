@@ -7,10 +7,8 @@ import org.example.jpb.annotation.Case;
 import org.example.jpb.annotation.Contract;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
-import org.example.jpb.core.model.Arguments;
-import org.example.jpb.core.model.ProblemContract;
-import org.example.jpb.core.model.ProblemResult;
-import org.example.jpb.core.model.TestCase;
+import org.example.jpb.core.benchmark.BenchmarkRunner;
+import org.example.jpb.core.model.*;
 import org.example.jpb.core.runner.ProblemRunner;
 import org.example.jpb.render.console.ProblemConsoleRenderer;
 import org.junit.jupiter.api.Test;
@@ -50,14 +48,14 @@ class ProblemRunnerTest {
 
 	@Test
 	void shouldRunAllCasesAndAllSolutionsWithoutThrowing() {
-		ProblemRunner runner = new ProblemRunner();
-		ProblemResult result = runner.run(DummyProblem.class);
+		ProblemRunner problemRunner = new ProblemRunner();
+		ProblemResult problemResult = problemRunner.run(DummyProblem.class);
 		ProblemConsoleRenderer renderer = new ProblemConsoleRenderer();
 
-		renderer.render(result);
+		renderer.render(problemResult);
 
-		assertNotNull(result);
-		assertEquals("Dummy", result.problemName());
-		assertEquals(2, result.solutions().size());
+		assertNotNull(problemResult);
+		assertEquals("Dummy", problemResult.problemName());
+		assertEquals(2, problemResult.solutions().size());
 	}
 }

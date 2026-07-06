@@ -11,7 +11,7 @@ public record SolutionResult(String solutionName, List<CaseResult> cases) {
 		return cases.size();
 	}
 
-	public boolean allPassed() {
+	public boolean passed() {
 		return passedCount() == totalCount();
 	}
 }

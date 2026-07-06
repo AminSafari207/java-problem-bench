@@ -143,7 +143,7 @@ public class ProblemPreparator {
 		for (Method method : problemClass.getDeclaredMethods()) {
 			if (!method.isAnnotationPresent(Case.class)) continue;
 
-			Object value = ReflectionExecutor.invoke(method, problemInstance);
+			Object value = ReflectionExecutor.invoke(problemInstance, method);
 
 			testCases.addAll(extractCases(value, "@Case method " + method.getName()));
 		}

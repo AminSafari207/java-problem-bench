@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 class ProblemRunnerTest {
 
-	@Problem(id = "problem-dummy", name = "Dummy")
+	@Problem(id = "problem-dummy", displayName = "Dummy")
 	static class DummyProblem {
 
 		@Contract

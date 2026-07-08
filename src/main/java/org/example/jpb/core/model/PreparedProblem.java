@@ -4,7 +4,7 @@ import java.util.List;
 
 public record PreparedProblem(
 	String id,
-	String problemName,
+	String problemDisplayName,
 	Class<?> problemClass,
 	Object problemInstance,
 	ProblemContract contract,
@@ -14,7 +14,7 @@ public record PreparedProblem(
 	public PreparedProblem withNewSolutions(List<PreparedSolution> newPreparedSolutions) {
 		return new PreparedProblem(
 			id,
-			problemName,
+			problemDisplayName,
 			problemClass,
 			problemInstance,
 			contract,

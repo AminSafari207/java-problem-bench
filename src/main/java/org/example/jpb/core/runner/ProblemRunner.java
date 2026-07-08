@@ -36,7 +36,7 @@ public class ProblemRunner {
 			solutionResults.add(result);
 		}
 
-		return new ProblemResult(preparedProblem.problemName(), solutionResults);
+		return new ProblemResult(preparedProblem.problemDisplayName(), solutionResults);
 	}
 
 	private SolutionResult runSolution(

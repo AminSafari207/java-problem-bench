@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Problem {
 	String id();
-	String name();
+	String displayName();
 }

@@ -31,7 +31,7 @@ public class BenchmarkRunner {
 		}
 
 		return new ProblemBenchmarkResult(
-			preparedProblem.problemName(),
+			preparedProblem.problemDisplayName(),
 			List.copyOf(solutionsBenchmarkResults)
 		);
 	}

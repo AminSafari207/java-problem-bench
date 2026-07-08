@@ -28,7 +28,7 @@ public class ProblemPreparator {
 
 		return new PreparedProblem(
 			problem.id(),
-			problem.name(),
+			problem.displayName(),
 			problemClass,
 			problemInstance,
 			contract,

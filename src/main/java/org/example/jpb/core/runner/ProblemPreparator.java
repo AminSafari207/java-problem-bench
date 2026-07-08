@@ -27,6 +27,7 @@ public class ProblemPreparator {
 		validateArtifacts(problemClass, contract, testCases, solutionMethods);
 
 		return new PreparedProblem(
+			problem.id(),
 			problem.name(),
 			problemClass,
 			problemInstance,

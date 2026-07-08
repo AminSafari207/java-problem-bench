@@ -3,6 +3,7 @@ package org.example.jpb.core.model;
 import java.util.List;
 
 public record PreparedProblem(
+	String id,
 	String problemName,
 	Class<?> problemClass,
 	Object problemInstance,
@@ -12,6 +13,7 @@ public record PreparedProblem(
 ) {
 	public PreparedProblem withNewSolutions(List<PreparedSolution> newPreparedSolutions) {
 		return new PreparedProblem(
+			id,
 			problemName,
 			problemClass,
 			problemInstance,

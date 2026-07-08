@@ -26,15 +26,16 @@ public class ProblemPreparator {
 
 		validateArtifacts(problemClass, contract, testCases, solutionMethods);
 
-		return new PreparedProblem(
-			problem.id(),
-			problem.displayName(),
-			problemClass,
-			problemInstance,
-			contract,
-			mapCases(testCases),
-			mapSolutions(solutionMethods)
-		);
+		return PreparedProblem
+			.builder()
+			.id(problem.id())
+			.displayName(problem.displayName())
+			.problemClass(problemClass)
+			.problemInstance(problemInstance)
+			.contract(contract)
+			.cases(mapCases(testCases))
+			.solutions(mapSolutions(solutionMethods))
+			.build();
 	}
 
 	private Object instantiate(Class<?> problemClass) {

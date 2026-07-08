@@ -10,7 +10,7 @@ import org.example.jpb.util.ReflectionExecutor;
 public class BenchmarkRunner {
 
 	public ProblemBenchmarkResult run(PreparedProblem preparedProblem, BenchmarkConfig config) {
-		List<PreparedSolution> preparedSolutions = preparedProblem.solutions();
+		List<PreparedSolution> preparedSolutions = preparedProblem.getSolutions();
 
 		validateInputs(preparedProblem, preparedSolutions, config);
 
@@ -31,7 +31,7 @@ public class BenchmarkRunner {
 		}
 
 		return new ProblemBenchmarkResult(
-			preparedProblem.problemDisplayName(),
+			preparedProblem.getDisplayName(),
 			List.copyOf(solutionsBenchmarkResults)
 		);
 	}
@@ -111,9 +111,9 @@ public class BenchmarkRunner {
 	}
 
 	private void runAllCases(PreparedProblem preparedProblem, PreparedSolution preparedSolution) {
-		for (PreparedCase preparedCase : preparedProblem.cases()) {
+		for (PreparedCase preparedCase : preparedProblem.getCases()) {
 			Method method = preparedSolution.method();
-			Object instance = preparedProblem.problemInstance();
+			Object instance = preparedProblem.getProblemInstance();
 			Object[] arguments = preparedCase.newArguments();
 
 			ReflectionExecutor.invoke(instance, method, arguments);

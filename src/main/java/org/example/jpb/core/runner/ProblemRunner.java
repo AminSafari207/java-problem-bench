@@ -26,17 +26,17 @@ public class ProblemRunner {
 	public ProblemResult run(PreparedProblem preparedProblem) {
 		List<SolutionResult> solutionResults = new ArrayList<>();
 
-		for (PreparedSolution preparedSolution : preparedProblem.solutions()) {
+		for (PreparedSolution preparedSolution : preparedProblem.getSolutions()) {
 			SolutionResult result = runSolution(
-				preparedProblem.problemInstance(),
+				preparedProblem.getProblemInstance(),
 				preparedSolution,
-				preparedProblem.cases()
+				preparedProblem.getCases()
 			);
 
 			solutionResults.add(result);
 		}
 
-		return new ProblemResult(preparedProblem.problemDisplayName(), solutionResults);
+		return new ProblemResult(preparedProblem.getDisplayName(), solutionResults);
 	}
 
 	private SolutionResult runSolution(

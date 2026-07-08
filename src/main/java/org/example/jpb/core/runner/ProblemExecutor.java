@@ -39,7 +39,7 @@ public class ProblemExecutor {
 			.collect(Collectors.toSet());
 
 		List<PreparedSolution> passedSolutions = preparedProblem
-			.solutions()
+			.getSolutions()
 			.stream()
 			.filter(solution -> passedSolutionNames.contains(solution.name()))
 			.toList();

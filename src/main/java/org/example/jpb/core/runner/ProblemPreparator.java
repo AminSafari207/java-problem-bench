@@ -6,7 +6,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import org.example.jpb.annotation.Case;
+import org.example.jpb.annotation.CaseSet;
 import org.example.jpb.annotation.Contract;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
@@ -143,7 +143,7 @@ public class ProblemPreparator {
 		List<TestCase> testCases = new ArrayList<>();
 
 		for (Method method : problemClass.getDeclaredMethods()) {
-			if (!method.isAnnotationPresent(Case.class)) continue;
+			if (!method.isAnnotationPresent(CaseSet.class)) continue;
 
 			Object value = ReflectionExecutor.invoke(problemInstance, method);
 
@@ -151,7 +151,7 @@ public class ProblemPreparator {
 		}
 
 		for (Field field : problemClass.getDeclaredFields()) {
-			if (!field.isAnnotationPresent(Case.class)) continue;
+			if (!field.isAnnotationPresent(CaseSet.class)) continue;
 
 			try {
 				field.setAccessible(true);

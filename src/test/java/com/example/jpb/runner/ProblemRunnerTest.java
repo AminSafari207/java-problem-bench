@@ -3,7 +3,7 @@ package com.example.jpb.runner;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-import org.example.jpb.annotation.Case;
+import org.example.jpb.annotation.CaseSet;
 import org.example.jpb.annotation.Contract;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
@@ -20,7 +20,7 @@ class ProblemRunnerTest {
 		@Contract
 		static final ProblemContract contract = ProblemContract.accepts(Integer.class).expects(Integer.class);
 
-		@Case
+		@CaseSet
 		public List<TestCase> cases() {
 			return List.of(
 				new TestCase("one", Arguments.single(1), 2),
@@ -28,7 +28,7 @@ class ProblemRunnerTest {
 			);
 		}
 
-		@Case
+		@CaseSet
 		public List<TestCase> cases2 = List.of(
 			new TestCase("three", Arguments.single(150), 151),
 			new TestCase("four", Arguments.single(300), 301)

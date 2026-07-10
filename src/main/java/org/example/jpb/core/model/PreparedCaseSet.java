@@ -6,16 +6,18 @@ import lombok.Getter;
 import org.example.jpb.util.ModelChecks;
 
 @Getter
-public final class PreparedCase {
+public final class PreparedCaseSet {
 
 	private final String id;
 	private final String displayName;
-	private final List<TestCase> cases;
+	private final List<TestCase> testCases;
 
 	@Builder
-	private PreparedCase(String id, String displayName, List<TestCase> cases) {
-		this.id = ModelChecks.requireNonBlank(id, "id");
+	private PreparedCaseSet(String id, String displayName, List<TestCase> cases) {
+		this.id = ModelChecks.requireNormalizedNonBlank(id, "id");
 		this.displayName = ModelChecks.defaultIfBlank(displayName, this.id);
-		this.cases = ModelChecks.requireNonEmptyCopy(cases, "cases");
+		this.testCases = ModelChecks.requireNonEmptyCopy(cases, "cases");
+
+		ModelChecks.requireUniqueIds(this.testCases, TestCase::getId, "testCases");
 	}
 }

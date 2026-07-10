@@ -42,7 +42,7 @@ public class BenchmarkRunner {
 		int warmupIterations,
 		int measurementIterations
 	) {
-		String solutionName = preparedSolution.name();
+		String solutionName = preparedSolution.getDisplayName();
 
 		try {
 			runWarmup(preparedProblem, preparedSolution, warmupIterations);
@@ -51,7 +51,8 @@ public class BenchmarkRunner {
 
 			return SolutionBenchmarkResult
 				.builder()
-				.solutionName(solutionName)
+				.solutionId(preparedSolution.getId())
+				.solutionDisplayName(solutionName)
 				.status(BenchmarkStatus.SUCCESS)
 				.stats(stats)
 				.errorMessage(null)
@@ -59,7 +60,8 @@ public class BenchmarkRunner {
 		} catch (Exception e) {
 			return SolutionBenchmarkResult
 				.builder()
-				.solutionName(solutionName)
+				.solutionId(preparedSolution.getId())
+				.solutionDisplayName(solutionName)
 				.status(BenchmarkStatus.FAILED)
 				.stats(null)
 				.errorMessage(buildErrorMessage(e))
@@ -111,12 +113,15 @@ public class BenchmarkRunner {
 	}
 
 	private void runAllCases(PreparedProblem preparedProblem, PreparedSolution preparedSolution) {
-		for (PreparedCaseSet preparedCase : preparedProblem.getCaseSets()) {
-			Method method = preparedSolution.method();
+		for (PreparedCaseSet preparedCaseSet : preparedProblem.getCaseSets()) {
+			Method method = preparedSolution.getSolutionMethod();
 			Object instance = preparedProblem.getProblemInstance();
-			Object[] arguments = preparedCase.getDeepClonedArguments();
 
-			ReflectionExecutor.invoke(instance, method, arguments);
+			for (TestCase testCase : preparedCaseSet.getTestCases()) {
+				Object[] arguments = testCase.getDeepClonedArguments();
+
+				ReflectionExecutor.invoke(instance, method, arguments);
+			}
 		}
 	}
 

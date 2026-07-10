@@ -34,14 +34,14 @@ public class ProblemExecutor {
 		Set<String> passedSolutionNames = problemResult
 			.solutionResults()
 			.stream()
-			.filter(SolutionResult::passed)
-			.map(SolutionResult::solutionName)
+			.filter(SolutionResult::isPassed)
+			.map(SolutionResult::getId)
 			.collect(Collectors.toSet());
 
 		List<PreparedSolution> passedSolutions = preparedProblem
 			.getSolutions()
 			.stream()
-			.filter(solution -> passedSolutionNames.contains(solution.name()))
+			.filter(solution -> passedSolutionNames.contains(solution.getDisplayName()))
 			.toList();
 
 		return preparedProblem.withNewSolutions(passedSolutions);

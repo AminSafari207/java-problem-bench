@@ -1,12 +1,13 @@
 package org.example.jpb.render.console;
 
 import java.util.Arrays;
+import java.util.function.Predicate;
 import org.example.jpb.core.model.*;
 import org.example.jpb.util.Console;
 
 public class ProblemConsoleRenderer {
 
-	private static final int WIDTH = 80;
+	private static final int WIDTH = 60;
 
 	//#################################
 	//## Problem Correctness ##########
@@ -27,32 +28,56 @@ public class ProblemConsoleRenderer {
 	}
 
 	private void renderSolution(SolutionResult solution) {
-		Console.section("Solution: " + solution.solutionName(), WIDTH, 1);
+		long totalTestCasesCount = solution.totalCount();
+		long passedTestCasesCount = solution.passedCount();
+
+		Console.section(
+			"Solution: " +
+			solution.getDisplayName() +
+			Console.indent(2) +
+			Console.gray(passedTestCasesCount + "/" + totalTestCasesCount + " passed"),
+			WIDTH,
+			1
+		);
 		Console.line();
-
-		for (CaseResult caseResult : solution.cases()) {
-			renderCase(caseResult);
-		}
-
+		renderCaseSet(solution);
 		Console.line();
 		renderSummary(solution);
 		Console.line();
 		Console.line();
 	}
 
-	private void renderCase(CaseResult caseResult) {
-		String base = Console.indent(2);
+	private void renderCaseSet(SolutionResult solution) {
+		for (CaseSetResult caseSetResult : solution.getCaseSetResults()) {
+			Console.line();
 
-		if (caseResult.passed()) {
-			Console.print(base + Console.green("[PASS]") + " " + caseResult.caseName());
+			if (caseSetResult.isPassed()) {
+				Console.section(Console.green("[PASS]") + " " + caseSetResult.getDisplayName(), WIDTH, 2);
+			}
+
+			if (!caseSetResult.isPassed()) {
+				Console.section(Console.red("[FAIL]") + " " + caseSetResult.getDisplayName(), WIDTH, 2);
+			}
+
+			for (TestCaseResult testCaseResult : caseSetResult.getTestCaseResults()) {
+				renderTestCase(testCaseResult);
+			}
+		}
+	}
+
+	private void renderTestCase(TestCaseResult testCaseResult) {
+		String base = Console.indent(4);
+
+		if (testCaseResult.isPassed()) {
+			Console.print(base + Console.green("[PASS]") + " " + testCaseResult.getDisplayName());
 			return;
 		}
 
-		Console.print(base + Console.red("[FAIL]") + " " + caseResult.caseName());
+		Console.print(base + Console.red("[FAIL]") + " " + testCaseResult.getDisplayName());
 		Console.line();
 
-		keyValue(3, "Expected", caseResult.expected());
-		keyValue(3, "Actual", caseResult.actual());
+		keyValue(3, "Expected", testCaseResult.getExpected());
+		keyValue(3, "Actual", testCaseResult.getActual());
 
 		Console.line();
 	}
@@ -63,7 +88,7 @@ public class ProblemConsoleRenderer {
 
 		String text = "Summary: " + passed + " / " + total + " passed";
 
-		if (solution.passed()) {
+		if (solution.isPassed()) {
 			Console.print(Console.indent(2) + Console.green(text));
 		} else if (passed == 0) {
 			Console.print(Console.indent(2) + Console.red(text));
@@ -91,7 +116,7 @@ public class ProblemConsoleRenderer {
 	}
 
 	private void renderBenchmarkSolution(SolutionBenchmarkResult solution) {
-		Console.section("Benchmark For Solution: " + solution.getSolutionName(), WIDTH, 1);
+		Console.section("Benchmark For Solution: " + solution.getSolutionDisplayName(), WIDTH, 1);
 		Console.line();
 
 		if (solution.isFailed()) {

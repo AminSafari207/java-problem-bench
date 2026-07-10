@@ -2,8 +2,10 @@ package org.example.jpb.core.model;
 
 import java.util.List;
 import lombok.Builder;
+import lombok.Getter;
 import org.example.jpb.util.ModelChecks;
 
+@Getter
 public class SolutionResult {
 
 	private final String id;

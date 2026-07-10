@@ -284,10 +284,10 @@ public class ProblemPreparator {
 	private void validateArtifacts(
 		Class<?> problemClass,
 		ProblemContract contract,
-		List<TestCase> testCases,
+		List<PreparedCaseSet> caseSets,
 		List<Method> solutions
 	) {
-		if (testCases.isEmpty()) {
+		if (caseSets.isEmpty()) {
 			throw new IllegalStateException(
 				"Invalid problem definition: no @Case found in " + problemClass.getName()
 			);
@@ -299,21 +299,38 @@ public class ProblemPreparator {
 			);
 		}
 
-		validateCases(problemClass, contract, testCases);
+		validateCaseSets(problemClass, contract, caseSets);
 		validateSolutions(problemClass, contract, solutions);
 	}
 
-	private void validateCases(Class<?> problemClass, ProblemContract contract, List<TestCase> testCases) {
+	private void validateCaseSets(
+		Class<?> problemClass,
+		ProblemContract contract,
+		List<PreparedCaseSet> caseSets
+	) {
+		for (PreparedCaseSet caseSet : caseSets) {
+			validateTestCases(problemClass, contract, caseSet.getTestCases(), caseSet.getDisplayName());
+		}
+	}
+
+	private void validateTestCases(
+		Class<?> problemClass,
+		ProblemContract contract,
+		List<TestCase> testCases,
+		String caseSetDisplayName
+	) {
 		Class<?>[] expectedParams = contract.parameterTypes();
 		Class<?> expectedReturnType = contract.returnType();
 
 		for (TestCase testCase : testCases) {
-			Object[] args = testCase.arguments().values();
+			Object[] args = testCase.getDeepClonedArguments();
 
 			if (args.length != expectedParams.length) {
 				throw new IllegalStateException(
 					"Test case '" +
-					testCase.name() +
+					testCase.getDisplayName() +
+					"' of case set '" +
+					caseSetDisplayName +
 					"' in " +
 					problemClass.getName() +
 					" has " +
@@ -327,7 +344,9 @@ public class ProblemPreparator {
 				if (!isValueCompatible(expectedParams[i], args[i])) {
 					throw new IllegalStateException(
 						"Test case '" +
-						testCase.name() +
+						testCase.getDisplayName() +
+						"' of case set '" +
+						caseSetDisplayName +
 						"' in " +
 						problemClass.getName() +
 						"' has incompatible argument at index " +
@@ -340,16 +359,18 @@ public class ProblemPreparator {
 				}
 			}
 
-			if (!isValueCompatible(expectedReturnType, testCase.expected())) {
+			if (!isValueCompatible(expectedReturnType, testCase.getExpected())) {
 				throw new IllegalStateException(
 					"Test case '" +
-					testCase.name() +
+					testCase.getDisplayName() +
+					"' of case set '" +
+					caseSetDisplayName +
 					"' in " +
 					problemClass.getName() +
 					"' has incompatible expected value: expected " +
 					expectedReturnType.getName() +
 					", but got " +
-					describeValueType(testCase.expected())
+					describeValueType(testCase.getExpected())
 				);
 			}
 		}

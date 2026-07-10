@@ -20,7 +20,7 @@ class ProblemRunnerTest {
 		@Contract
 		static final ProblemContract contract = ProblemContract.accepts(Integer.class).expects(Integer.class);
 
-		@CaseSet(id = "case-set-01")
+		@CaseSet(id = "case-set-01", displayName = "CASE_SET_01")
 		public List<TestCase> cases() {
 			return List.of(
 				TestCase.of("one", Arguments.single(1), 2),
@@ -34,7 +34,7 @@ class ProblemRunnerTest {
 			TestCase.of("four", Arguments.single(300), 301)
 		);
 
-		@Solution(id = "add one")
+		@Solution(id = "add one", displayName = "ADD_ONE")
 		public Integer addOne(Integer input) {
 			return input + 1;
 		}

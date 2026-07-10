@@ -35,7 +35,7 @@ public class ProblemExecutor {
 		PreparedProblem preparedProblem,
 		ProblemResult problemResult
 	) {
-		Set<String> passedSolutionNames = problemResult
+		Set<String> passedSolutionIds = problemResult
 			.getSolutionResults()
 			.stream()
 			.filter(SolutionResult::isPassed)
@@ -45,7 +45,7 @@ public class ProblemExecutor {
 		List<PreparedSolution> passedSolutions = preparedProblem
 			.getSolutions()
 			.stream()
-			.filter(solution -> passedSolutionNames.contains(solution.getDisplayName()))
+			.filter(solution -> passedSolutionIds.contains(solution.getId()))
 			.toList();
 
 		return preparedProblem.withNewSolutions(passedSolutions);

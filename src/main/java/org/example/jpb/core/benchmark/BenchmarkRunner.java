@@ -100,13 +100,10 @@ public class BenchmarkRunner {
 			maxNanos = Math.max(maxNanos, elapsedNanos);
 		}
 
-		double averageNanos = (double) totalNanos / measurementIterations;
-
 		return BenchmarkStats
 			.builder()
 			.sampleCount(measurementIterations)
 			.totalNanos(totalNanos)
-			.averageNanos(averageNanos)
 			.minNanos(minNanos)
 			.maxNanos(maxNanos)
 			.build();

@@ -27,6 +27,10 @@ public final class ModelChecks {
 		return value == null || value.isBlank() ? defaultValue : value;
 	}
 
+	public static int defaultIfNull(Integer value, int defaultValue) {
+		return value != null ? value : defaultValue;
+	}
+
 	public static <T> T requireNonNull(T value, String fieldName) {
 		return Objects.requireNonNull(value, fieldName + " must not be null");
 	}
@@ -53,6 +57,26 @@ public final class ModelChecks {
 		}
 
 		return value;
+	}
+
+	public static int requirePositive(int value, String fieldName) {
+		if (value <= 0) {
+			throw new IllegalArgumentException(fieldName + " must be positive");
+		}
+
+		return value;
+	}
+
+	public static void requireZero(long value, String fieldName) {
+		if (value != 0L) {
+			throw new IllegalArgumentException(fieldName + " must be 0 when sampleCount is 0");
+		}
+	}
+
+	public static void requireZero(double value, String fieldName) {
+		if (Double.compare(value, 0.0d) != 0) {
+			throw new IllegalArgumentException(fieldName + " must be 0 when sampleCount is 0");
+		}
 	}
 
 	public static <T> List<T> requireNonEmptyCopy(Collection<T> values, String fieldName) {

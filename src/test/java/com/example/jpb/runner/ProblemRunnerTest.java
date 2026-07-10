@@ -34,12 +34,12 @@ class ProblemRunnerTest {
 			TestCase.of("four", Arguments.single(300), 301)
 		);
 
-		@Solution(name = "add one")
+		@Solution(id = "add one")
 		public Integer addOne(Integer input) {
 			return input + 1;
 		}
 
-		@Solution(name = "add two, subtract 1")
+		@Solution(id = "add two, subtract 1")
 		public Integer addTwoSubOne(Integer input) {
 			return input + 3 - 1;
 		}

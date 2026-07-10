@@ -24,9 +24,9 @@ public class ProblemPreparator {
 		ProblemContract contract = readContract(problemClass);
 
 		List<PreparedCaseSet> caseSets = resolveCaseSets(problemClass, problemInstance);
-		List<Method> solutionMethods = collectSolutions(problemClass);
+		List<PreparedSolution> solutions = resolveSolutions(problemClass);
 
-		validateArtifacts(problemClass, contract, caseSets, solutionMethods);
+		validateArtifacts(problemClass, contract, caseSets, solutions);
 
 		return PreparedProblem
 			.builder()
@@ -36,7 +36,7 @@ public class ProblemPreparator {
 			.problemInstance(problemInstance)
 			.contract(contract)
 			.caseSets(caseSets)
-			.solutions(mapSolutions(solutionMethods))
+			.solutions(solutions)
 			.build();
 	}
 
@@ -236,31 +236,38 @@ public class ProblemPreparator {
 		);
 	}
 
-	private List<Method> collectSolutions(Class<?> problemClass) {
-		List<Method> solutions = new ArrayList<>();
+	private List<PreparedSolution> resolveSolutions(Class<?> problemClass) {
+		List<PreparedSolution> solutions = collectSolutions(problemClass);
 
-		for (Method method : problemClass.getDeclaredMethods()) {
-			if (!method.isAnnotationPresent(Solution.class)) continue;
-
-			method.setAccessible(true);
-			solutions.add(method);
-		}
-
-		solutions.sort(Comparator.comparing(Method::getName));
+		ModelChecks.requireUniqueIds(solutions, PreparedSolution::getId, "solutions");
 
 		return solutions;
 	}
 
-	private List<PreparedSolution> mapSolutions(List<Method> solutionMethods) {
-		List<PreparedSolution> preparedSolutions = new ArrayList<>();
+	private List<PreparedSolution> collectSolutions(Class<?> problemClass) {
+		List<PreparedSolution> solutions = new ArrayList<>();
 
-		for (Method method : solutionMethods) {
-			Solution annotation = method.getAnnotation(Solution.class);
+		for (Method method : problemClass.getDeclaredMethods()) {
+			Solution solution = method.getAnnotation(Solution.class);
 
-			preparedSolutions.add(new PreparedSolution(annotation.name(), method));
+			if (solution == null) continue;
+
+			//
+
+			method.setAccessible(true);
+			solutions.add(
+				PreparedSolution
+					.builder()
+					.id(solution.id())
+					.displayName(solution.displayName())
+					.solutionMethod(method)
+					.build()
+			);
 		}
 
-		return preparedSolutions;
+		solutions.sort(Comparator.comparing(PreparedSolution::getId));
+
+		return solutions;
 	}
 
 	//#################################
@@ -285,7 +292,7 @@ public class ProblemPreparator {
 		Class<?> problemClass,
 		ProblemContract contract,
 		List<PreparedCaseSet> caseSets,
-		List<Method> solutions
+		List<PreparedSolution> solutions
 	) {
 		if (caseSets.isEmpty()) {
 			throw new IllegalStateException(
@@ -376,9 +383,13 @@ public class ProblemPreparator {
 		}
 	}
 
-	private void validateSolutions(Class<?> problemClass, ProblemContract contract, List<Method> solutions) {
-		for (Method solutionMethod : solutions) {
-			validateSolutionSignature(problemClass, contract, solutionMethod);
+	private void validateSolutions(
+		Class<?> problemClass,
+		ProblemContract contract,
+		List<PreparedSolution> solutions
+	) {
+		for (PreparedSolution solution : solutions) {
+			validateSolutionSignature(problemClass, contract, solution.getSolutionMethod());
 		}
 	}
 

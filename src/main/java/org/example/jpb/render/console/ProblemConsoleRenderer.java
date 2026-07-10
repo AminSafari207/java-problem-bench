@@ -16,14 +16,14 @@ public class ProblemConsoleRenderer {
 	public void renderProblemResult(ProblemResult result) {
 		renderProblemHeader(result);
 
-		for (SolutionResult solution : result.solutionResults()) {
+		for (SolutionResult solution : result.getSolutionResults()) {
 			renderSolution(solution);
 		}
 	}
 
 	private void renderProblemHeader(ProblemResult result) {
 		Console.line();
-		Console.boxTitle("Problem: " + Console.blue(result.problemDisplayName()), WIDTH);
+		Console.boxTitle("Problem: " + Console.blue(result.getProblemDisplayName()), WIDTH);
 		Console.line();
 	}
 

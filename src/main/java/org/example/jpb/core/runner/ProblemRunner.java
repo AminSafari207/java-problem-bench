@@ -36,7 +36,12 @@ public class ProblemRunner {
 			solutionResults.add(result);
 		}
 
-		return new ProblemResult(preparedProblem.getDisplayName(), solutionResults);
+		return ProblemResult
+			.builder()
+			.problemId(preparedProblem.getId())
+			.problemDisplayName(preparedProblem.getDisplayName())
+			.solutionResults(solutionResults)
+			.build();
 	}
 
 	private SolutionResult runSolution(

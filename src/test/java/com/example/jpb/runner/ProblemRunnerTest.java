@@ -68,7 +68,7 @@ class ProblemRunnerTest {
 		renderer.renderBenchmarkResult(problemBenchmarkResult);
 
 		assertNotNull(problemResult);
-		assertEquals("Dummy", problemResult.problemDisplayName());
-		assertEquals(2, problemResult.solutionResults().size());
+		assertEquals("Dummy", problemResult.getProblemDisplayName());
+		assertEquals(2, problemResult.getSolutionResults().size());
 	}
 }

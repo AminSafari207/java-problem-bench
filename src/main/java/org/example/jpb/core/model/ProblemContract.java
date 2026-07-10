@@ -1,40 +1,48 @@
 package org.example.jpb.core.model;
 
+import java.util.Arrays;
 import java.util.Objects;
+import lombok.Getter;
+import org.example.jpb.util.ModelChecks;
 
+@Getter
 public final class ProblemContract {
 
-	private final Class<?>[] parameterTypes;
-	private final Class<?> returnType;
+	private final Class<?>[] acceptedTypes;
+	private final Class<?> expectedType;
 
-	private ProblemContract(Class<?>[] parameterTypes, Class<?> returnType) {
-		Objects.requireNonNull(parameterTypes, "parameterTypes must not be null");
-		Objects.requireNonNull(returnType, "returnType must not be null");
-
-		this.parameterTypes = parameterTypes.clone();
-		verifyParameterTypesElements(this.parameterTypes);
-
-		this.returnType = returnType;
+	private ProblemContract(Class<?>[] acceptedTypes, Class<?> expectedType) {
+		this.acceptedTypes = requireAcceptedTypes(acceptedTypes);
+		this.expectedType = ModelChecks.requireNonNull(expectedType, "expectedType");
 	}
 
-	public static ReturnStep accepts(Class<?>... parameterTypes) {
-		return returnType -> new ProblemContract(parameterTypes, returnType);
+	public static ReturnStep accepts(Class<?>... acceptedTypes) {
+		Class<?>[] copiedAcceptedTypes = requireAcceptedTypes(acceptedTypes);
+		return expectedType -> new ProblemContract(copiedAcceptedTypes, expectedType);
 	}
 
-	public Class<?>[] parameterTypes() {
-		return parameterTypes.clone();
-	}
+	private static Class<?>[] requireAcceptedTypes(Class<?>[] acceptedTypes) {
+		ModelChecks.requireNonNull(acceptedTypes, "acceptedTypes");
 
-	public Class<?> returnType() {
-		return returnType;
-	}
+		Class<?>[] copy = acceptedTypes.clone();
 
-	private void verifyParameterTypesElements(Class<?>[] parameterTypes) {
-		for (int i = 0; i < parameterTypes.length; i++) {
-			if (this.parameterTypes[i] == null) {
-				throw new IllegalArgumentException("parameterTypes[" + i + "] must not be null");
-			}
+		for (int i = 0; i < copy.length; i++) {
+			ModelChecks.requireNonNull(copy[i], "acceptedTypes[" + i + "]");
 		}
+
+		return copy;
+	}
+
+	@Override
+	public String toString() {
+		return (
+			"ProblemContract{" +
+			"acceptedTypes=" +
+			Arrays.toString(acceptedTypes) +
+			", expectedType=" +
+			expectedType +
+			'}'
+		);
 	}
 
 	@FunctionalInterface

@@ -326,8 +326,8 @@ public class ProblemPreparator {
 		List<TestCase> testCases,
 		String caseSetDisplayName
 	) {
-		Class<?>[] expectedParams = contract.parameterTypes();
-		Class<?> expectedReturnType = contract.returnType();
+		Class<?>[] expectedParams = contract.getAcceptedTypes();
+		Class<?> expectedReturnType = contract.getExpectedType();
 
 		for (TestCase testCase : testCases) {
 			Object[] args = testCase.getDeepClonedArguments();
@@ -399,7 +399,7 @@ public class ProblemPreparator {
 		Method solutionMethod
 	) {
 		Class<?>[] actualParams = solutionMethod.getParameterTypes();
-		Class<?>[] expectedParams = contract.parameterTypes();
+		Class<?>[] expectedParams = contract.getAcceptedTypes();
 
 		if (actualParams.length != expectedParams.length) {
 			throw new IllegalStateException(
@@ -431,14 +431,14 @@ public class ProblemPreparator {
 			}
 		}
 
-		if (!sameType(solutionMethod.getReturnType(), contract.returnType())) {
+		if (!sameType(solutionMethod.getReturnType(), contract.getExpectedType())) {
 			throw new IllegalStateException(
 				"@Solution method '" +
 				solutionMethod.getName() +
 				"' in " +
 				problemClass.getName() +
 				"' has incompatible return type: expected " +
-				contract.returnType().getName() +
+				contract.getExpectedType().getName() +
 				", got " +
 				solutionMethod.getReturnType().getName()
 			);

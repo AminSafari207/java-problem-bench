@@ -32,7 +32,7 @@ public class ProblemExecutor {
 		ProblemResult problemResult
 	) {
 		Set<String> passedSolutionNames = problemResult
-			.solutions()
+			.solutionResults()
 			.stream()
 			.filter(SolutionResult::passed)
 			.map(SolutionResult::solutionName)

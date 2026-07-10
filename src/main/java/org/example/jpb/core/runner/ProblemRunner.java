@@ -42,32 +42,63 @@ public class ProblemRunner {
 	private SolutionResult runSolution(
 		Object instance,
 		PreparedSolution preparedSolution,
-		List<PreparedCaseSet> testCases
+		List<PreparedCaseSet> caseSets
 	) {
-		List<CaseResult> caseResults = new ArrayList<>();
+		List<CaseSetResult> caseSetResults = new ArrayList<>();
 
-		for (PreparedCaseSet testCase : testCases) {
-			Object actual;
+		for (PreparedCaseSet caseSet : caseSets) {
+			List<TestCaseResult> testCaseResults = new ArrayList<>();
 
-			try {
-				actual =
-					ReflectionExecutor.invoke(instance, preparedSolution.method(), testCase.getDeepClonedArguments());
-			} catch (RuntimeException e) {
-				throw new RuntimeException(
-					"Execution failed: @Solution method '" +
-					preparedSolution.name() +
-					"' failed for test case '" +
-					testCase.name() +
-					"'",
-					e
+			for (TestCase testCase : caseSet.getTestCases()) {
+				Object actual;
+
+				try {
+					actual =
+						ReflectionExecutor.invoke(
+							instance,
+							preparedSolution.getSolutionMethod(),
+							testCase.getDeepClonedArguments()
+						);
+				} catch (RuntimeException e) {
+					throw new RuntimeException(
+						"Execution failed: @Solution method '" +
+						preparedSolution.getDisplayName() +
+						"' failed for test case '" +
+						testCase.getDisplayName() +
+						"'",
+						e
+					);
+				}
+
+				boolean passed = ResultComparator.areEqual(testCase.getExpected(), actual);
+
+				testCaseResults.add(
+					TestCaseResult
+						.builder()
+						.id(testCase.getId())
+						.displayName(testCase.getDisplayName())
+						.expected(testCase.getExpected())
+						.actual(actual)
+						.passed(passed)
+						.build()
 				);
 			}
 
-			boolean passed = ResultComparator.areEqual(testCase.expected(), actual);
-
-			caseResults.add(new CaseResult(testCase.name(), testCase.expected(), actual, passed));
+			caseSetResults.add(
+				CaseSetResult
+					.builder()
+					.id(caseSet.getId())
+					.displayName(caseSet.getDisplayName())
+					.testCaseResults(testCaseResults)
+					.build()
+			);
 		}
 
-		return new SolutionResult(preparedSolution.name(), caseResults);
+		return SolutionResult
+			.builder()
+			.id(preparedSolution.getId())
+			.displayName(preparedSolution.getDisplayName())
+			.caseSetResults(caseSetResults)
+			.build();
 	}
 }

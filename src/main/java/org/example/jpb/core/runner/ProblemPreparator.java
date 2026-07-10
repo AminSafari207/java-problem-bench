@@ -239,7 +239,7 @@ public class ProblemPreparator {
 	private List<PreparedSolution> resolveSolutions(Class<?> problemClass) {
 		List<PreparedSolution> solutions = collectSolutions(problemClass);
 
-		ModelChecks.requireUniqueIds(solutions, PreparedSolution::getId, "solutions");
+		ModelChecks.requireUniqueIds(solutions, PreparedSolution::getId, "solutionResults");
 
 		return solutions;
 	}

@@ -15,14 +15,14 @@ public class ProblemConsoleRenderer {
 	public void renderProblemResult(ProblemResult result) {
 		renderProblemHeader(result);
 
-		for (SolutionResult solution : result.solutions()) {
+		for (SolutionResult solution : result.solutionResults()) {
 			renderSolution(solution);
 		}
 	}
 
 	private void renderProblemHeader(ProblemResult result) {
 		Console.line();
-		Console.boxTitle("Problem: " + Console.blue(result.problemName()), WIDTH);
+		Console.boxTitle("Problem: " + Console.blue(result.problemDisplayName()), WIDTH);
 		Console.line();
 	}
 

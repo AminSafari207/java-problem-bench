@@ -1,8 +1,7 @@
 package org.example.jpb.util;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 
 public final class ModelChecks {
 
@@ -10,9 +9,15 @@ public final class ModelChecks {
 		throw new AssertionError("No instances");
 	}
 
-	public static String requireNonBlank(String value, String fieldName) {
-		if (value == null || value.isBlank()) {
+	public static String requireNormalizedNonBlank(String value, String fieldName) {
+		requireNonNull(value, fieldName);
+
+		if (value.isBlank()) {
 			throw new IllegalArgumentException(fieldName + " must not be blank");
+		}
+
+		if (!value.equals(value.strip())) {
+			throw new IllegalArgumentException(fieldName + " must not start or end with whitespace");
 		}
 
 		return value;
@@ -87,6 +92,24 @@ public final class ModelChecks {
 			throw new IllegalArgumentException(
 				minFieldName + " must be less than or equal to " + maxFieldName
 			);
+		}
+	}
+
+	public static <T> void requireUniqueIds(
+		Collection<T> items,
+		Function<T, String> idGetter,
+		String fieldName
+	) {
+		if (items == null || items.isEmpty()) return;
+
+		Set<String> seenIds = new HashSet<>(items.size());
+
+		for (T item : items) {
+			String id = idGetter.apply(item);
+
+			if (!seenIds.add(id)) {
+				throw new IllegalArgumentException("Duplicate " + fieldName + " id: '" + id + "'");
+			}
 		}
 	}
 }

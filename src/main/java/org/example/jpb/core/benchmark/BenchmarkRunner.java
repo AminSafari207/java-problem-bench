@@ -30,10 +30,12 @@ public class BenchmarkRunner {
 			solutionsBenchmarkResults.add(benchmarkResult);
 		}
 
-		return new ProblemBenchmarkResult(
-			preparedProblem.getDisplayName(),
-			List.copyOf(solutionsBenchmarkResults)
-		);
+		return ProblemBenchmarkResult
+			.builder()
+			.problemId(preparedProblem.getId())
+			.problemDisplayName(preparedProblem.getDisplayName())
+			.solutionBenchmarkResults(solutionsBenchmarkResults)
+			.build();
 	}
 
 	private SolutionBenchmarkResult benchmarkSolution(

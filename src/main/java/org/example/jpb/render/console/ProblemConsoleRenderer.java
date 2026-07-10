@@ -104,14 +104,14 @@ public class ProblemConsoleRenderer {
 	public void renderBenchmarkResult(ProblemBenchmarkResult result) {
 		renderBenchmarkHeader(result);
 
-		for (SolutionBenchmarkResult solutionBenchmarkResult : result.solutionBenchmarkResults()) {
+		for (SolutionBenchmarkResult solutionBenchmarkResult : result.getSolutionBenchmarkResults()) {
 			renderBenchmarkSolution(solutionBenchmarkResult);
 		}
 	}
 
 	private void renderBenchmarkHeader(ProblemBenchmarkResult result) {
 		Console.line();
-		Console.boxTitle("Benchmark For Problem: " + Console.blue(result.problemName()), WIDTH);
+		Console.boxTitle("Benchmark For Problem: " + Console.blue(result.getProblemDisplayName()), WIDTH);
 		Console.line();
 	}
 

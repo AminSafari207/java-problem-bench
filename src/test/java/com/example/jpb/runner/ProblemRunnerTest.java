@@ -59,8 +59,8 @@ class ProblemRunnerTest {
 			benchmarkConfig
 		);
 
-		ProblemResult problemResult = problemExecutionResult.problemResult();
-		ProblemBenchmarkResult problemBenchmarkResult = problemExecutionResult.problemBenchmarkResult();
+		ProblemResult problemResult = problemExecutionResult.getProblemResult();
+		ProblemBenchmarkResult problemBenchmarkResult = problemExecutionResult.getProblemBenchmarkResult();
 
 		ProblemConsoleRenderer renderer = new ProblemConsoleRenderer();
 

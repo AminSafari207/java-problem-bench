@@ -24,7 +24,11 @@ public class ProblemExecutor {
 		PreparedProblem benchmarkReadyProblem = filterPassedSolutions(preparedProblem, problemResult);
 		ProblemBenchmarkResult benchmarkResult = benchmarkRunner.run(benchmarkReadyProblem, benchmarkConfig);
 
-		return new ProblemExecutionResult(problemResult, benchmarkResult);
+		return ProblemExecutionResult
+			.builder()
+			.problemResult(problemResult)
+			.problemBenchmarkResult(benchmarkResult)
+			.build();
 	}
 
 	private PreparedProblem filterPassedSolutions(

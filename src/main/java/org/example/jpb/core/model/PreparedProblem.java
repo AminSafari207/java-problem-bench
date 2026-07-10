@@ -32,9 +32,10 @@ public class PreparedProblem {
 		this.problemInstance = ModelChecks.requireNonNull(problemInstance, "problemInstance");
 		this.contract = ModelChecks.requireNonNull(contract, "contract");
 		this.caseSets = ModelChecks.requireNonEmptyCopy(caseSets, "caseSets");
-		this.solutions = ModelChecks.requireNonEmptyCopy(solutions, "solutions");
+		this.solutions = ModelChecks.requireNonEmptyCopy(solutions, "solutionResults");
 
 		ModelChecks.requireUniqueIds(this.caseSets, PreparedCaseSet::getId, "caseSets");
+		ModelChecks.requireUniqueIds(this.solutions, PreparedSolution::getId, "solutions");
 	}
 
 	public PreparedProblem withNewSolutions(List<PreparedSolution> newPreparedSolutions) {

@@ -111,10 +111,10 @@ public class BenchmarkRunner {
 	}
 
 	private void runAllCases(PreparedProblem preparedProblem, PreparedSolution preparedSolution) {
-		for (PreparedCase preparedCase : preparedProblem.getCases()) {
+		for (PreparedCaseSet preparedCase : preparedProblem.getCaseSets()) {
 			Method method = preparedSolution.method();
 			Object instance = preparedProblem.getProblemInstance();
-			Object[] arguments = preparedCase.newArguments();
+			Object[] arguments = preparedCase.getDeepClonedArguments();
 
 			ReflectionExecutor.invoke(instance, method, arguments);
 		}

@@ -11,6 +11,7 @@ import org.example.jpb.annotation.Contract;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
 import org.example.jpb.core.model.*;
+import org.example.jpb.util.ModelChecks;
 import org.example.jpb.util.ReflectionExecutor;
 
 public class ProblemPreparator {
@@ -21,10 +22,11 @@ public class ProblemPreparator {
 		Problem problem = problemClass.getAnnotation(Problem.class);
 		Object problemInstance = instantiate(problemClass);
 		ProblemContract contract = readContract(problemClass);
-		List<TestCase> testCases = collectCases(problemClass, problemInstance);
+
+		List<PreparedCaseSet> caseSets = resolveCaseSets(problemClass, problemInstance);
 		List<Method> solutionMethods = collectSolutions(problemClass);
 
-		validateArtifacts(problemClass, contract, testCases, solutionMethods);
+		validateArtifacts(problemClass, contract, caseSets, solutionMethods);
 
 		return PreparedProblem
 			.builder()
@@ -33,7 +35,7 @@ public class ProblemPreparator {
 			.problemClass(problemClass)
 			.problemInstance(problemInstance)
 			.contract(contract)
-			.cases(mapCases(testCases))
+			.caseSets(caseSets)
 			.solutions(mapSolutions(solutionMethods))
 			.build();
 	}
@@ -139,38 +141,66 @@ public class ProblemPreparator {
 		}
 	}
 
-	private List<TestCase> collectCases(Class<?> problemClass, Object problemInstance) {
-		List<TestCase> testCases = new ArrayList<>();
+	private List<PreparedCaseSet> resolveCaseSets(Class<?> problemClass, Object problemInstance) {
+		List<PreparedCaseSet> caseSets = collectCaseSets(problemClass, problemInstance);
+
+		ModelChecks.requireUniqueIds(caseSets, PreparedCaseSet::getId, "caseSets");
+
+		return caseSets;
+	}
+
+	private List<PreparedCaseSet> collectCaseSets(Class<?> problemClass, Object problemInstance) {
+		List<PreparedCaseSet> caseSets = new ArrayList<>();
 
 		for (Method method : problemClass.getDeclaredMethods()) {
-			if (!method.isAnnotationPresent(CaseSet.class)) continue;
+			CaseSet caseSet = method.getAnnotation(CaseSet.class);
+
+			if (caseSet == null) continue;
 
 			Object value = ReflectionExecutor.invoke(problemInstance, method);
+			String source = "@CaseSete method " + method.getName();
 
-			testCases.addAll(extractCases(value, "@Case method " + method.getName()));
+			caseSets.add(
+				PreparedCaseSet
+					.builder()
+					.id(caseSet.id())
+					.displayName(caseSet.displayName())
+					.testCases(extractTestCases(value, source))
+					.build()
+			);
 		}
 
 		for (Field field : problemClass.getDeclaredFields()) {
-			if (!field.isAnnotationPresent(CaseSet.class)) continue;
+			CaseSet caseSet = field.getAnnotation(CaseSet.class);
+
+			if (caseSet == null) continue;
 
 			try {
 				field.setAccessible(true);
 
 				Object value = field.get(problemInstance);
+				String source = "@CaseSete field " + field.getName();
 
-				testCases.addAll(extractCases(value, "@Case field " + field.getName()));
+				caseSets.add(
+					PreparedCaseSet
+						.builder()
+						.id(caseSet.id())
+						.displayName(caseSet.displayName())
+						.testCases(extractTestCases(value, source))
+						.build()
+				);
 			} catch (IllegalAccessException e) {
 				throw new RuntimeException(
-					"Failed to access @Case field '" + field.getName() + "' in " + problemClass.getName(),
+					"Failed to access @CaseSet field '" + field.getName() + "' in " + problemClass.getName(),
 					e
 				);
 			}
 		}
 
-		return testCases;
+		return caseSets;
 	}
 
-	private List<TestCase> extractCases(Object value, String source) {
+	private List<TestCase> extractTestCases(Object value, String source) {
 		if (value == null) {
 			throw new IllegalStateException(source + " produced null");
 		}
@@ -219,16 +249,6 @@ public class ProblemPreparator {
 		solutions.sort(Comparator.comparing(Method::getName));
 
 		return solutions;
-	}
-
-	private List<PreparedCase> mapCases(List<TestCase> testCases) {
-		List<PreparedCase> preparedCases = new ArrayList<>();
-
-		for (TestCase testCase : testCases) {
-			preparedCases.add(new PreparedCase(testCase.name(), testCase.arguments(), testCase.expected()));
-		}
-
-		return preparedCases;
 	}
 
 	private List<PreparedSolution> mapSolutions(List<Method> solutionMethods) {

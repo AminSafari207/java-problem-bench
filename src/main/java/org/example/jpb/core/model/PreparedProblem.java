@@ -13,7 +13,7 @@ public class PreparedProblem {
 	private final Class<?> problemClass;
 	private final Object problemInstance;
 	private final ProblemContract contract;
-	private final List<PreparedCase> cases;
+	private final List<PreparedCaseSet> caseSets;
 	private final List<PreparedSolution> solutions;
 
 	@Builder(toBuilder = true)
@@ -23,16 +23,18 @@ public class PreparedProblem {
 		Class<?> problemClass,
 		Object problemInstance,
 		ProblemContract contract,
-		List<PreparedCase> cases,
+		List<PreparedCaseSet> caseSets,
 		List<PreparedSolution> solutions
 	) {
-		this.id = ModelChecks.requireNonBlank(id, "id");
+		this.id = ModelChecks.requireNormalizedNonBlank(id, "id");
 		this.displayName = ModelChecks.defaultIfBlank(displayName, this.id);
 		this.problemClass = ModelChecks.requireNonNull(problemClass, "problemClass");
 		this.problemInstance = ModelChecks.requireNonNull(problemInstance, "problemInstance");
 		this.contract = ModelChecks.requireNonNull(contract, "contract");
-		this.cases = ModelChecks.requireNonEmptyCopy(cases, "cases");
+		this.caseSets = ModelChecks.requireNonEmptyCopy(caseSets, "caseSets");
 		this.solutions = ModelChecks.requireNonEmptyCopy(solutions, "solutions");
+
+		ModelChecks.requireUniqueIds(this.caseSets, PreparedCaseSet::getId, "caseSets");
 	}
 
 	public PreparedProblem withNewSolutions(List<PreparedSolution> newPreparedSolutions) {

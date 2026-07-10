@@ -30,7 +30,7 @@ public class ProblemRunner {
 			SolutionResult result = runSolution(
 				preparedProblem.getProblemInstance(),
 				preparedSolution,
-				preparedProblem.getCases()
+				preparedProblem.getCaseSets()
 			);
 
 			solutionResults.add(result);
@@ -42,16 +42,16 @@ public class ProblemRunner {
 	private SolutionResult runSolution(
 		Object instance,
 		PreparedSolution preparedSolution,
-		List<PreparedCase> testCases
+		List<PreparedCaseSet> testCases
 	) {
 		List<CaseResult> caseResults = new ArrayList<>();
 
-		for (PreparedCase testCase : testCases) {
+		for (PreparedCaseSet testCase : testCases) {
 			Object actual;
 
 			try {
 				actual =
-					ReflectionExecutor.invoke(instance, preparedSolution.method(), testCase.newArguments());
+					ReflectionExecutor.invoke(instance, preparedSolution.method(), testCase.getDeepClonedArguments());
 			} catch (RuntimeException e) {
 				throw new RuntimeException(
 					"Execution failed: @Solution method '" +

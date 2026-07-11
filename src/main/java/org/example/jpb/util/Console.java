@@ -55,6 +55,30 @@ public final class Console {
 		return text + " ".repeat(width - visualLen);
 	}
 
+	public static String truncate(String text, int width) {
+		if (text == null) return "";
+		if (width <= 0) return "";
+
+		if (visualLength(text) <= width) {
+			return text;
+		}
+
+		if (width == 1) {
+			return "…";
+		}
+
+		String plain = ANSI_PATTERN.matcher(text).replaceAll("");
+		if (plain.length() <= width) {
+			return plain;
+		}
+
+		return plain.substring(0, width - 1) + "…";
+	}
+
+	public static String padRightTruncate(String text, int width) {
+		return padRight(truncate(text, width), width);
+	}
+
 	public static void section(String title, int width, int indent) {
 		String prefix = indent(indent);
 

@@ -2,6 +2,7 @@ package org.example.jpb.core.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.example.jpb.core.constants.ModelLimits;
 import org.example.jpb.util.ModelChecks;
 
 public class TestCase {
@@ -19,8 +20,21 @@ public class TestCase {
 
 	@Builder
 	private TestCase(String id, String displayName, Arguments arguments, Object expected) {
-		this.id = ModelChecks.requireNormalizedNonBlank(id, "id");
-		this.displayName = ModelChecks.defaultIfBlank(displayName, this.id);
+		this.id =
+			ModelChecks.requireNormalizedNonBlankLengthBetween(
+				id,
+				ModelLimits.ID_MIN_LENGTH,
+				ModelLimits.ID_MAX_LENGTH,
+				"id"
+			);
+		this.displayName =
+			ModelChecks.requireNormalizedNonBlankLengthBetweenOrDefault(
+				displayName,
+				this.id,
+				ModelLimits.DISPLAY_NAME_MIN_LENGTH,
+				ModelLimits.DISPLAY_NAME_MAX_LENGTH,
+				"displayName"
+			);
 		this.arguments = ModelChecks.requireNonNull(arguments, "arguments");
 		this.expected = ModelChecks.requireNonNull(expected, "expected");
 	}

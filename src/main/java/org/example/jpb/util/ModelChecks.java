@@ -35,6 +35,41 @@ public final class ModelChecks {
 		return Objects.requireNonNull(value, fieldName + " must not be null");
 	}
 
+	public static String requireLengthBetween(String value, int minLength, int maxLength, String fieldName) {
+		requireNonNull(value, fieldName);
+
+		int length = value.length();
+
+		if (length < minLength || length > maxLength) {
+			throw new IllegalArgumentException(
+				fieldName + " length must be between " + minLength + " and " + maxLength
+			);
+		}
+
+		return value;
+	}
+
+	public static String requireNormalizedNonBlankLengthBetween(
+		String value,
+		int minLength,
+		int maxLength,
+		String fieldName
+	) {
+		String normalized = requireNormalizedNonBlank(value, fieldName);
+		return requireLengthBetween(normalized, minLength, maxLength, fieldName);
+	}
+
+	public static String requireNormalizedNonBlankLengthBetweenOrDefault(
+		String value,
+		String defaultValue,
+		int minLength,
+		int maxLength,
+		String fieldName
+	) {
+		String resolved = defaultIfBlank(value, defaultValue);
+		return requireNormalizedNonBlankLengthBetween(resolved, minLength, maxLength, fieldName);
+	}
+
 	public static int requireNonNegative(int value, String fieldName) {
 		if (value < 0) {
 			throw new IllegalArgumentException(fieldName + " must not be negative");

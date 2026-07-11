@@ -47,7 +47,7 @@ public class ProblemExecutor {
 			.getSolutionResults()
 			.stream()
 			.filter(SolutionResult::isPassed)
-			.map(SolutionResult::getId)
+			.map(SolutionResult::getSolutionId)
 			.collect(Collectors.toSet());
 
 		return preparedProblem

@@ -80,8 +80,8 @@ public class ProblemRunner {
 				testCaseResults.add(
 					TestCaseResult
 						.builder()
-						.id(testCase.getId())
-						.displayName(testCase.getDisplayName())
+						.testCaseId(testCase.getId())
+						.testCaseDisplayName(testCase.getDisplayName())
 						.expected(testCase.getExpected())
 						.actual(actual)
 						.passed(passed)
@@ -92,8 +92,8 @@ public class ProblemRunner {
 			caseSetResults.add(
 				CaseSetResult
 					.builder()
-					.id(caseSet.getId())
-					.displayName(caseSet.getDisplayName())
+					.caseSetId(caseSet.getId())
+					.caseSetDisplayName(caseSet.getDisplayName())
 					.testCaseResults(testCaseResults)
 					.build()
 			);
@@ -101,8 +101,8 @@ public class ProblemRunner {
 
 		return SolutionResult
 			.builder()
-			.id(preparedSolution.getId())
-			.displayName(preparedSolution.getDisplayName())
+			.solutionId(preparedSolution.getId())
+			.solutionDisplayName(preparedSolution.getDisplayName())
 			.caseSetResults(caseSetResults)
 			.build();
 	}

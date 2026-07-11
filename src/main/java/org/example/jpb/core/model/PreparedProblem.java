@@ -3,6 +3,7 @@ package org.example.jpb.core.model;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
+import org.example.jpb.core.constants.ModelLimits;
 import org.example.jpb.util.ModelChecks;
 
 @Getter
@@ -26,8 +27,21 @@ public class PreparedProblem {
 		List<PreparedCaseSet> caseSets,
 		List<PreparedSolution> solutions
 	) {
-		this.id = ModelChecks.requireNormalizedNonBlank(id, "id");
-		this.displayName = ModelChecks.defaultIfBlank(displayName, this.id);
+		this.id =
+			ModelChecks.requireNormalizedNonBlankLengthBetween(
+				id,
+				ModelLimits.ID_MIN_LENGTH,
+				ModelLimits.ID_MAX_LENGTH,
+				"id"
+			);
+		this.displayName =
+			ModelChecks.requireNormalizedNonBlankLengthBetweenOrDefault(
+				displayName,
+				this.id,
+				ModelLimits.DISPLAY_NAME_MIN_LENGTH,
+				ModelLimits.DISPLAY_NAME_MAX_LENGTH,
+				"displayName"
+			);
 		this.problemClass = ModelChecks.requireNonNull(problemClass, "problemClass");
 		this.problemInstance = ModelChecks.requireNonNull(problemInstance, "problemInstance");
 		this.contract = ModelChecks.requireNonNull(contract, "contract");

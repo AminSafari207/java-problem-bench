@@ -2,6 +2,7 @@ package org.example.jpb.core.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.example.jpb.core.constants.ModelLimits;
 import org.example.jpb.core.enums.BenchmarkStatus;
 import org.example.jpb.util.ModelChecks;
 
@@ -22,8 +23,21 @@ public class SolutionBenchmarkResult {
 		BenchmarkStats stats,
 		String errorMessage
 	) {
-		this.solutionId = ModelChecks.requireNormalizedNonBlank(solutionId, "solutionId");
-		this.solutionDisplayName = ModelChecks.defaultIfBlank(solutionDisplayName, this.solutionId);
+		this.solutionId =
+			ModelChecks.requireNormalizedNonBlankLengthBetween(
+				solutionId,
+				ModelLimits.ID_MIN_LENGTH,
+				ModelLimits.ID_MAX_LENGTH,
+				"solutionId"
+			);
+		this.solutionDisplayName =
+			ModelChecks.requireNormalizedNonBlankLengthBetweenOrDefault(
+				solutionDisplayName,
+				this.solutionId,
+				ModelLimits.DISPLAY_NAME_MIN_LENGTH,
+				ModelLimits.DISPLAY_NAME_MAX_LENGTH,
+				"solutionDisplayName"
+			);
 		this.status = ModelChecks.requireNonNull(status, "status");
 		this.stats = stats;
 		this.errorMessage = errorMessage;

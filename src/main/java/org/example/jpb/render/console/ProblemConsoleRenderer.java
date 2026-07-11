@@ -1,7 +1,7 @@
 package org.example.jpb.render.console;
 
 import java.util.Arrays;
-import java.util.function.Predicate;
+
 import org.example.jpb.core.model.*;
 import org.example.jpb.render.model.ConsoleRenderOptions;
 import org.example.jpb.util.Console;
@@ -39,13 +39,13 @@ public class ProblemConsoleRenderer {
 		long passed = solution.passedCount();
 
 		String status = statusLabel(solution.isPassed());
-		String id = options.isShowIds() ? " " + Console.gray("id=" + solution.getId()) : "";
+		String id = options.isShowIds() ? " " + Console.gray("id=" + solution.getSolutionId()) : "";
 		String count = Console.gray(passed + "/" + total);
 
 		Console.print(
 			status +
 			" Solution  " +
-			Console.padRight(solution.getDisplayName(), 24) +
+			Console.padRight(solution.getSolutionDisplayName(), 24) +
 			id +
 			Console.indent(2) +
 			count
@@ -67,14 +67,14 @@ public class ProblemConsoleRenderer {
 		long passed = caseSetResult.passedCount();
 
 		String status = statusLabel(caseSetResult.isPassed());
-		String id = options.isShowIds() ? " " + Console.gray("id=" + caseSetResult.getId()) : "";
+		String id = options.isShowIds() ? " " + Console.gray("id=" + caseSetResult.getCaseSetId()) : "";
 		String count = Console.gray(passed + "/" + total);
 
 		Console.print(
 			Console.indent(1) +
 			status +
 			" Case set  " +
-			Console.padRight(caseSetResult.getDisplayName(), 22) +
+			Console.padRight(caseSetResult.getCaseSetDisplayName(), 22) +
 			id +
 			Console.indent(2) +
 			count
@@ -91,9 +91,9 @@ public class ProblemConsoleRenderer {
 
 	private void renderTestCase(TestCaseResult testCaseResult, ConsoleRenderOptions options) {
 		String status = statusLabel(testCaseResult.isPassed());
-		String id = options.isShowIds() ? " " + Console.gray("id=" + testCaseResult.getId()) : "";
+		String id = options.isShowIds() ? " " + Console.gray("id=" + testCaseResult.getTestCaseId()) : "";
 
-		Console.print(Console.indent(2) + status + " " + testCaseResult.getDisplayName() + id);
+		Console.print(Console.indent(2) + status + " " + testCaseResult.getTestCaseDisplayName() + id);
 
 		if (testCaseResult.isPassed()) return;
 

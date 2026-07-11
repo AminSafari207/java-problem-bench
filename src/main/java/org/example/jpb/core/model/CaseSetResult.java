@@ -3,19 +3,33 @@ package org.example.jpb.core.model;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
+import org.example.jpb.core.constants.ModelLimits;
 import org.example.jpb.util.ModelChecks;
 
 @Getter
 public class CaseSetResult {
 
-	private final String id;
-	private final String displayName;
+	private final String caseSetId;
+	private final String caseSetDisplayName;
 	private final List<TestCaseResult> testCaseResults;
 
 	@Builder
-	public CaseSetResult(String id, String displayName, List<TestCaseResult> testCaseResults) {
-		this.id = ModelChecks.requireNormalizedNonBlank(id, "id");
-		this.displayName = ModelChecks.defaultIfBlank(displayName, this.id);
+	public CaseSetResult(String caseSetId, String caseSetDisplayName, List<TestCaseResult> testCaseResults) {
+		this.caseSetId =
+			ModelChecks.requireNormalizedNonBlankLengthBetween(
+				caseSetId,
+				ModelLimits.ID_MIN_LENGTH,
+				ModelLimits.ID_MAX_LENGTH,
+				"caseSetId"
+			);
+		this.caseSetDisplayName =
+			ModelChecks.requireNormalizedNonBlankLengthBetweenOrDefault(
+				caseSetDisplayName,
+				this.caseSetId,
+				ModelLimits.DISPLAY_NAME_MIN_LENGTH,
+				ModelLimits.DISPLAY_NAME_MAX_LENGTH,
+				"caseSetDisplayName"
+			);
 		this.testCaseResults = ModelChecks.requireNonEmptyCopy(testCaseResults, "testCaseResults");
 	}
 

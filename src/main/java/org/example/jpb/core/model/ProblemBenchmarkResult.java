@@ -3,6 +3,7 @@ package org.example.jpb.core.model;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
+import org.example.jpb.core.constants.ModelLimits;
 import org.example.jpb.util.ModelChecks;
 
 @Getter
@@ -20,8 +21,21 @@ public class ProblemBenchmarkResult {
 		List<SolutionBenchmarkResult> solutionBenchmarkResults,
 		String skipReason
 	) {
-		this.problemId = ModelChecks.requireNormalizedNonBlank(problemId, "problemId");
-		this.problemDisplayName = ModelChecks.defaultIfBlank(problemDisplayName, this.problemId);
+		this.problemId =
+			ModelChecks.requireNormalizedNonBlankLengthBetween(
+				problemId,
+				ModelLimits.ID_MIN_LENGTH,
+				ModelLimits.ID_MAX_LENGTH,
+				"problemId"
+			);
+		this.problemDisplayName =
+			ModelChecks.requireNormalizedNonBlankLengthBetweenOrDefault(
+				problemDisplayName,
+				this.problemId,
+				ModelLimits.DISPLAY_NAME_MIN_LENGTH,
+				ModelLimits.DISPLAY_NAME_MAX_LENGTH,
+				"problemDisplayName"
+			);
 		this.solutionBenchmarkResults =
 			ModelChecks.requireCopy(solutionBenchmarkResults, "solutionBenchmarkResults");
 		this.skipReason = ModelChecks.defaultIfBlank(skipReason, null);

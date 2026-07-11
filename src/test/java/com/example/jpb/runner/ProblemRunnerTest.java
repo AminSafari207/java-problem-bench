@@ -10,6 +10,7 @@ import org.example.jpb.annotation.Solution;
 import org.example.jpb.core.model.*;
 import org.example.jpb.core.runner.ProblemExecutor;
 import org.example.jpb.render.console.ProblemConsoleRenderer;
+import org.example.jpb.render.model.ConsoleRenderOptions;
 import org.junit.jupiter.api.Test;
 
 class ProblemRunnerTest {
@@ -41,7 +42,7 @@ class ProblemRunnerTest {
 
 		@Solution(id = "add two, subtract 1")
 		public Integer addTwoSubOne(Integer input) {
-			return input + 3 - 1;
+			return input + 2 - 1;
 		}
 	}
 
@@ -49,8 +50,16 @@ class ProblemRunnerTest {
 	void shouldRunAllCasesAndAllSolutionsWithoutThrowing() {
 		BenchmarkConfig benchmarkConfig = BenchmarkConfig
 			.builder()
-			.warmupIterations(1000)
-			.measurementIterations(10000)
+			.warmupIterations(100_000)
+			.measurementIterations(1_000_000)
+			.build();
+
+		ConsoleRenderOptions consoleRenderOptions = ConsoleRenderOptions
+			.builder()
+			.showIds(true)
+			.showPassedCaseSets(true)
+			.showPassedTestCases(true)
+			.showBenchmark(true)
 			.build();
 
 		ProblemExecutor problemExecutor = new ProblemExecutor();
@@ -64,8 +73,8 @@ class ProblemRunnerTest {
 
 		ProblemConsoleRenderer renderer = new ProblemConsoleRenderer();
 
-		renderer.renderProblemResult(problemResult);
-		renderer.renderBenchmarkResult(problemBenchmarkResult);
+		renderer.renderProblemResult(problemResult, consoleRenderOptions);
+		renderer.renderBenchmarkResult(problemBenchmarkResult, consoleRenderOptions);
 
 		assertNotNull(problemResult);
 		assertEquals("Dummy", problemResult.getProblemDisplayName());

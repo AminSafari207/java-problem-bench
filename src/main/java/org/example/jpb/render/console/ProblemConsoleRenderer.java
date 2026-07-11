@@ -111,11 +111,18 @@ public class ProblemConsoleRenderer {
 	}
 
 	public void renderBenchmarkResult(ProblemBenchmarkResult result, ConsoleRenderOptions options) {
-		if (!options.isShowBenchmark()) {
+		if (!options.isShowBenchmark()) return;
+
+		renderBenchmarkHeader(result);
+
+		Console.section("Benchmark", WIDTH, 0);
+
+		if (result.isSkipped()) {
+			Console.print(Console.yellow("Skipped: ") + result.getSkipReason());
+			Console.line();
 			return;
 		}
 
-		renderBenchmarkHeader(result);
 		renderBenchmarkTable(result);
 	}
 
@@ -126,8 +133,6 @@ public class ProblemConsoleRenderer {
 	}
 
 	private void renderBenchmarkTable(ProblemBenchmarkResult result) {
-		Console.section("Benchmark", WIDTH, 0);
-
 		Console.print(
 			Console.padRight("Status", 9) +
 			Console.padRight("Solution", 24) +

@@ -24,7 +24,7 @@ class ProblemRunnerTest {
 		@CaseSet(id = "case-set-01", displayName = "CASE_SET_01")
 		public List<TestCase> cases() {
 			return List.of(
-				TestCase.of("one", Arguments.single(1), 2),
+				TestCase.of("one", Arguments.single(2), 2),
 				TestCase.of("two", Arguments.single(2), 3)
 			);
 		}

@@ -21,8 +21,16 @@ public class ProblemExecutor {
 	public ProblemExecutionResult execute(Class<?> problemClass, BenchmarkConfig benchmarkConfig) {
 		PreparedProblem preparedProblem = problemPreparator.prepare(problemClass);
 		ProblemResult problemResult = problemRunner.run(preparedProblem);
-		PreparedProblem benchmarkReadyProblem = filterPassedSolutions(preparedProblem, problemResult);
-		ProblemBenchmarkResult benchmarkResult = benchmarkRunner.run(benchmarkReadyProblem, benchmarkConfig);
+
+		List<PreparedSolution> passedSolutions = findPassedSolutions(preparedProblem, problemResult);
+
+		ProblemBenchmarkResult benchmarkResult = passedSolutions.isEmpty()
+			? ProblemBenchmarkResult.skipped(
+				preparedProblem.getId(),
+				preparedProblem.getDisplayName(),
+				"No solutions passed correctness; benchmark skipped."
+			)
+			: benchmarkRunner.run(preparedProblem.withNewSolutions(passedSolutions), benchmarkConfig);
 
 		return ProblemExecutionResult
 			.builder()
@@ -31,7 +39,7 @@ public class ProblemExecutor {
 			.build();
 	}
 
-	private PreparedProblem filterPassedSolutions(
+	private List<PreparedSolution> findPassedSolutions(
 		PreparedProblem preparedProblem,
 		ProblemResult problemResult
 	) {
@@ -42,12 +50,10 @@ public class ProblemExecutor {
 			.map(SolutionResult::getId)
 			.collect(Collectors.toSet());
 
-		List<PreparedSolution> passedSolutions = preparedProblem
+		return preparedProblem
 			.getSolutions()
 			.stream()
 			.filter(solution -> passedSolutionIds.contains(solution.getId()))
 			.toList();
-
-		return preparedProblem.withNewSolutions(passedSolutions);
 	}
 }

@@ -21,7 +21,7 @@ class ProblemRunnerTest {
 		@Contract
 		static final ProblemContract contract = ProblemContract.accepts(Integer.class).expects(Integer.class);
 
-		@CaseSet(id = "case-set-01", displayName = "CASE_SET_01")
+		@CaseSet(id = "case-set-01", displayName = "Case set 01")
 		public List<TestCase> cases() {
 			return List.of(
 				TestCase.of("one", Arguments.single(1), 2),
@@ -35,13 +35,15 @@ class ProblemRunnerTest {
 			TestCase.of("four", Arguments.single(300), 301)
 		);
 
-		@Solution(id = "add one", displayName = "ADD_ONE")
+		@Solution(id = "add-one", displayName = "Add one")
 		public Integer addOne(Integer input) {
 			return input + 1;
 		}
 
-		@Solution(id = "add two, subtract 1144444444422222")
+		@Solution(id = "add-two-subtract-one")
 		public Integer addTwoSubOne(Integer input) {
+			if (input == 300) return input + 2;
+
 			return input + 2 - 1;
 		}
 	}

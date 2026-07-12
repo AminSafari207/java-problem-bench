@@ -72,11 +72,38 @@ public final class Console {
 			return plain;
 		}
 
-		return plain.substring(0, width - 1) + "…";
+		return plain.substring(0, width - 1).trim() + "…";
 	}
 
 	public static String padRightTruncate(String text, int width) {
 		return padRight(truncate(text, width), width);
+	}
+
+	public static String padColumnTruncate(String text, int width, int trailingPadding) {
+		if (width <= 0) {
+			throw new IllegalArgumentException("width must be positive");
+		}
+
+		if (trailingPadding < 0) {
+			throw new IllegalArgumentException("trailingPadding must be >= 0");
+		}
+
+		if (trailingPadding > width) {
+			throw new IllegalArgumentException("trailingPadding must be <= width");
+		}
+
+		String value = text == null ? "" : text;
+		int contentWidth = width - trailingPadding;
+
+		if (contentWidth <= 0) {
+			return " ".repeat(width);
+		}
+
+		return Console.padRightTruncate(value, contentWidth) + " ".repeat(trailingPadding);
+	}
+
+	public static String padColumnTruncate(String text, int width) {
+		return padColumnTruncate(text, width, 2);
 	}
 
 	public static void section(String title, int width, int indent) {

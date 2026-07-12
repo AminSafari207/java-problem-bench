@@ -1,14 +1,12 @@
 package org.example.jpb.render.console;
 
 import java.util.Arrays;
-
 import org.example.jpb.core.model.*;
+import org.example.jpb.render.constants.ConsoleLayout;
 import org.example.jpb.render.model.ConsoleRenderOptions;
 import org.example.jpb.util.Console;
 
 public class ProblemConsoleRenderer {
-
-	private static final int WIDTH = 80;
 
 	//#################################
 	//## Problem Correctness ##########
@@ -21,7 +19,7 @@ public class ProblemConsoleRenderer {
 	public void renderProblemResult(ProblemResult result, ConsoleRenderOptions options) {
 		renderProblemHeader(result);
 
-		Console.section("Correctness", WIDTH, 0);
+		Console.section("Correctness", ConsoleLayout.DEFAULT_WIDTH, 0);
 
 		for (SolutionResult solution : result.getSolutionResults()) {
 			renderSolution(solution, options);
@@ -30,29 +28,18 @@ public class ProblemConsoleRenderer {
 
 	private void renderProblemHeader(ProblemResult result) {
 		Console.line();
-		Console.boxTitle("Problem: " + Console.blue(result.getProblemDisplayName()), WIDTH);
+		Console.boxTitle(
+			"Problem: " + Console.blue(result.getProblemDisplayName()),
+			ConsoleLayout.DEFAULT_WIDTH
+		);
 		Console.line();
 	}
 
 	private void renderSolution(SolutionResult solution, ConsoleRenderOptions options) {
-		long total = solution.totalCount();
-		long passed = solution.passedCount();
-
-		String status = statusLabel(solution.isPassed());
-		String id = options.isShowIds() ? " " + Console.gray("id=" + solution.getSolutionId()) : "";
-		String count = Console.gray(passed + "/" + total);
-
-		Console.print(
-			status +
-			" Solution  " +
-			Console.padRight(solution.getSolutionDisplayName(), 24) +
-			id +
-			Console.indent(2) +
-			count
-		);
+		renderSolutionSummary(solution, options);
 
 		for (CaseSetResult caseSetResult : solution.getCaseSetResults()) {
-			if (caseSetResult.isPassed() && !options.isShowPassedCaseSets()) {
+			if (!shouldRenderCaseSet(caseSetResult, options)) {
 				continue;
 			}
 
@@ -62,43 +49,87 @@ public class ProblemConsoleRenderer {
 		Console.line();
 	}
 
-	private void renderCaseSet(CaseSetResult caseSetResult, ConsoleRenderOptions options) {
-		long total = caseSetResult.totalCount();
-		long passed = caseSetResult.passedCount();
-
-		String status = statusLabel(caseSetResult.isPassed());
-		String id = options.isShowIds() ? " " + Console.gray("id=" + caseSetResult.getCaseSetId()) : "";
-		String count = Console.gray(passed + "/" + total);
-
-		Console.print(
-			Console.indent(1) +
-			status +
-			" Case set  " +
-			Console.padRight(caseSetResult.getCaseSetDisplayName(), 22) +
-			id +
-			Console.indent(2) +
-			count
+	private void renderSolutionSummary(SolutionResult solution, ConsoleRenderOptions options) {
+		printCorrectnessRow(
+			0,
+			statusLabel(solution.isPassed()),
+			"Solution: ",
+			solution.getSolutionDisplayName(),
+			options.isShowIds() ? solution.getSolutionId() : null,
+			Console.gray(solution.passedCount() + "/" + solution.totalCount() + " passed")
 		);
+	}
+
+	private boolean shouldRenderCaseSet(CaseSetResult caseSetResult, ConsoleRenderOptions options) {
+		return !caseSetResult.isPassed() || options.isShowPassedCaseSets();
+	}
+
+	private void renderCaseSet(CaseSetResult caseSetResult, ConsoleRenderOptions options) {
+		renderCaseSetSummary(caseSetResult, options);
+
+		int renderedFailures = 0;
+		int hiddenFailures = 0;
 
 		for (TestCaseResult testCaseResult : caseSetResult.getTestCaseResults()) {
-			if (testCaseResult.isPassed() && !options.isShowPassedTestCases()) {
+			if (!shouldRenderTestCase(testCaseResult, options)) {
+				continue;
+			}
+
+			if (!testCaseResult.isPassed() && renderedFailures >= options.getMaxFailureDetails()) {
+				hiddenFailures++;
 				continue;
 			}
 
 			renderTestCase(testCaseResult, options);
+
+			if (!testCaseResult.isPassed()) {
+				renderedFailures++;
+			}
+		}
+
+		if (hiddenFailures > 0) {
+			Console.print(
+				Console.indent(ConsoleLayout.INDENT_TEST_CASE) +
+				Console.gray("... " + hiddenFailures + " more failure(s) hidden")
+			);
 		}
 	}
 
+	private void renderCaseSetSummary(CaseSetResult caseSetResult, ConsoleRenderOptions options) {
+		printCorrectnessRow(
+			ConsoleLayout.INDENT_CASE_SET,
+			statusLabel(caseSetResult.isPassed()),
+			"Case set: ",
+			caseSetResult.getCaseSetDisplayName(),
+			options.isShowIds() ? caseSetResult.getCaseSetId() : null,
+			Console.gray(caseSetResult.passedCount() + "/" + caseSetResult.totalCount() + " passed")
+		);
+	}
+
+	private boolean shouldRenderTestCase(TestCaseResult testCaseResult, ConsoleRenderOptions options) {
+		return !testCaseResult.isPassed() || options.isShowPassedTestCases();
+	}
+
 	private void renderTestCase(TestCaseResult testCaseResult, ConsoleRenderOptions options) {
-		String status = statusLabel(testCaseResult.isPassed());
-		String id = options.isShowIds() ? " " + Console.gray("id=" + testCaseResult.getTestCaseId()) : "";
+		printCorrectnessRow(
+			ConsoleLayout.INDENT_TEST_CASE,
+			statusLabel(testCaseResult.isPassed()),
+			"Test: ",
+			testCaseResult.getTestCaseDisplayName(),
+			options.isShowIds() ? testCaseResult.getTestCaseId() : null,
+			null
+		);
 
-		Console.print(Console.indent(2) + status + " " + testCaseResult.getTestCaseDisplayName() + id);
+		if (testCaseResult.isPassed()) {
+			return;
+		}
 
-		if (testCaseResult.isPassed()) return;
+		renderFailedTestCaseDetails(testCaseResult);
+	}
 
-		keyValue(3, "Expected", testCaseResult.getExpected());
-		keyValue(3, "Actual", testCaseResult.getActual());
+	private void renderFailedTestCaseDetails(TestCaseResult testCaseResult) {
+		keyValue(ConsoleLayout.INDENT_DETAIL, "Expected", testCaseResult.getExpected());
+		keyValue(ConsoleLayout.INDENT_DETAIL, "Actual", testCaseResult.getActual());
 		Console.line();
 	}
 
@@ -111,15 +142,16 @@ public class ProblemConsoleRenderer {
 	}
 
 	public void renderBenchmarkResult(ProblemBenchmarkResult result, ConsoleRenderOptions options) {
-		if (!options.isShowBenchmark()) return;
+		if (!options.isShowBenchmark()) {
+			return;
+		}
 
 		renderBenchmarkHeader(result);
 
-		Console.section("Benchmark", WIDTH, 0);
+		Console.section("Benchmark", ConsoleLayout.DEFAULT_WIDTH, 0);
 
 		if (result.isSkipped()) {
-			Console.print(Console.yellow("Skipped: ") + result.getSkipReason());
-			Console.line();
+			renderSkippedBenchmark(result);
 			return;
 		}
 
@@ -128,21 +160,20 @@ public class ProblemConsoleRenderer {
 
 	private void renderBenchmarkHeader(ProblemBenchmarkResult result) {
 		Console.line();
-		Console.boxTitle("Benchmark For Problem: " + Console.blue(result.getProblemDisplayName()), WIDTH);
+		Console.boxTitle(
+			"Benchmark For Problem: " + Console.blue(result.getProblemDisplayName()),
+			ConsoleLayout.DEFAULT_WIDTH
+		);
+		Console.line();
+	}
+
+	private void renderSkippedBenchmark(ProblemBenchmarkResult result) {
+		Console.print(Console.yellow("Skipped: ") + result.getSkipReason());
 		Console.line();
 	}
 
 	private void renderBenchmarkTable(ProblemBenchmarkResult result) {
-		Console.print(
-			Console.padRight("Status", 9) +
-			Console.padRight("Solution", 24) +
-			Console.padRight("Samples", 10) +
-			Console.padRight("Avg", 11) +
-			Console.padRight("Min", 11) +
-			Console.padRight("Max", 11)
-		);
-
-		Console.divider('─', WIDTH);
+		renderBenchmarkTableHeader();
 
 		result
 			.getSolutionBenchmarkResults()
@@ -153,31 +184,100 @@ public class ProblemConsoleRenderer {
 		Console.line();
 	}
 
+	private void renderBenchmarkTableHeader() {
+		Console.print(
+			Console.padRightTruncate("Status", ConsoleLayout.BENCHMARK_STATUS_WIDTH) +
+			Console.padRightTruncate("Solution", ConsoleLayout.BENCHMARK_SOLUTION_WIDTH) +
+			Console.padRightTruncate("Samples", ConsoleLayout.BENCHMARK_SAMPLES_WIDTH) +
+			Console.padRightTruncate("Avg", ConsoleLayout.BENCHMARK_TIME_WIDTH) +
+			Console.padRightTruncate("Min", ConsoleLayout.BENCHMARK_TIME_WIDTH) +
+			Console.padRightTruncate("Max", ConsoleLayout.BENCHMARK_TIME_WIDTH)
+		);
+
+		Console.divider('─', ConsoleLayout.DEFAULT_WIDTH);
+	}
+
 	private void renderBenchmarkRow(SolutionBenchmarkResult solution) {
 		if (solution.isFailed()) {
-			Console.print(
-				Console.padRight(Console.red("FAILED"), 9) +
-				Console.padRight(solution.getSolutionDisplayName(), 24) +
-				Console.gray(solution.getErrorMessage())
-			);
+			renderFailedBenchmarkRow(solution);
 			return;
 		}
 
+		renderSuccessfulBenchmarkRow(solution);
+	}
+
+	private void renderFailedBenchmarkRow(SolutionBenchmarkResult solution) {
+		Console.print(
+			Console.padRightTruncate(Console.red("FAILED"), ConsoleLayout.BENCHMARK_STATUS_WIDTH) +
+			Console.padColumnTruncate(
+				solution.getSolutionDisplayName(),
+				ConsoleLayout.BENCHMARK_SOLUTION_WIDTH
+			) +
+			Console.gray(Console.truncate(solution.getErrorMessage(), remainingBenchmarkErrorWidth()))
+		);
+	}
+
+	private void renderSuccessfulBenchmarkRow(SolutionBenchmarkResult solution) {
 		BenchmarkStats stats = solution.getStats();
 
 		Console.print(
-			Console.padRight(Console.green("SUCCESS"), 9) +
-			Console.padRight(solution.getSolutionDisplayName(), 24) +
-			Console.padRight(String.valueOf(stats.getSampleCount()), 10) +
-			Console.padRight(formatNanos(Math.round(stats.getAverageNanos())), 11) +
-			Console.padRight(formatNanos(stats.getMinNanos()), 11) +
-			Console.padRight(formatNanos(stats.getMaxNanos()), 11)
+			Console.padRightTruncate(Console.green("SUCCESS"), ConsoleLayout.BENCHMARK_STATUS_WIDTH) +
+			Console.padColumnTruncate(
+				solution.getSolutionDisplayName(),
+				ConsoleLayout.BENCHMARK_SOLUTION_WIDTH
+			) +
+			Console.padRightTruncate(
+				String.valueOf(stats.getSampleCount()),
+				ConsoleLayout.BENCHMARK_SAMPLES_WIDTH
+			) +
+			Console.padRightTruncate(
+				formatNanos(Math.round(stats.getAverageNanos())),
+				ConsoleLayout.BENCHMARK_TIME_WIDTH
+			) +
+			Console.padRightTruncate(formatNanos(stats.getMinNanos()), ConsoleLayout.BENCHMARK_TIME_WIDTH) +
+			Console.padRightTruncate(formatNanos(stats.getMaxNanos()), ConsoleLayout.BENCHMARK_TIME_WIDTH)
+		);
+	}
+
+	private int remainingBenchmarkErrorWidth() {
+		return (
+			ConsoleLayout.DEFAULT_WIDTH -
+			ConsoleLayout.BENCHMARK_STATUS_WIDTH -
+			ConsoleLayout.BENCHMARK_SOLUTION_WIDTH
 		);
 	}
 
 	//#################################
 	//## Helpers ######################
 	//#################################
+
+	private void printCorrectnessRow(
+		int indent,
+		String status,
+		String labelPrefix,
+		String displayName,
+		String id,
+		String score
+	) {
+		String nameColumn = quotedLabeledValue(
+			labelPrefix,
+			displayName,
+			ConsoleLayout.CORRECTNESS_NAME_WIDTH,
+			2
+		);
+		String idColumn = id == null
+			? ""
+			: quotedLabeledValue("id: ", id, ConsoleLayout.CORRECTNESS_ID_WIDTH, 2);
+		String scoreColumn = score == null ? "" : score;
+
+		String row =
+			Console.padColumnTruncate(status, ConsoleLayout.CORRECTNESS_STATUS_WIDTH) +
+			Console.padColumnTruncate(nameColumn, ConsoleLayout.CORRECTNESS_NAME_WIDTH) +
+			Console.padColumnTruncate(idColumn, ConsoleLayout.CORRECTNESS_ID_WIDTH) +
+			scoreColumn;
+
+		Console.print(Console.indent(indent) + row);
+	}
 
 	private void keyValue(int indent, String key, Object value) {
 		Console.print(Console.indent(indent) + String.format("%-9s -> %s", key, formatValue(value)));
@@ -188,7 +288,11 @@ public class ProblemConsoleRenderer {
 
 		if (value instanceof int[] v) return Arrays.toString(v);
 		if (value instanceof long[] v) return Arrays.toString(v);
+		if (value instanceof byte[] v) return Arrays.toString(v);
+		if (value instanceof short[] v) return Arrays.toString(v);
+		if (value instanceof char[] v) return Arrays.toString(v);
 		if (value instanceof double[] v) return Arrays.toString(v);
+		if (value instanceof float[] v) return Arrays.toString(v);
 		if (value instanceof boolean[] v) return Arrays.toString(v);
 		if (value instanceof Object[] v) return Arrays.deepToString(v);
 
@@ -225,6 +329,28 @@ public class ProblemConsoleRenderer {
 
 	private String statusLabel(boolean passed) {
 		return passed ? Console.green("[PASS]") : Console.red("[FAIL]");
+	}
+
+	private String quoted(String value) {
+		return "\"" + (value == null ? "" : value) + "\"";
+	}
+
+	private String quotedLabeledValue(String label, String value, int columnWidth, int rightPadding) {
+		String safeLabel = label == null ? "" : label;
+		String safeValue = value == null ? "" : value;
+
+		int contentWidth = columnWidth - rightPadding;
+		if (contentWidth <= 0) {
+			return "";
+		}
+
+		int availableValueWidth = contentWidth - safeLabel.length() - 2;
+		if (availableValueWidth <= 0) {
+			return Console.truncate(safeLabel, contentWidth);
+		}
+
+		String truncatedValue = Console.truncate(safeValue, availableValueWidth);
+		return safeLabel + "\"" + truncatedValue + "\"";
 	}
 
 	private int compareBenchmarkResults(SolutionBenchmarkResult first, SolutionBenchmarkResult second) {

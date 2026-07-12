@@ -24,7 +24,7 @@ class ProblemRunnerTest {
 		@CaseSet(id = "case-set-01", displayName = "CASE_SET_01")
 		public List<TestCase> cases() {
 			return List.of(
-				TestCase.of("one", Arguments.single(2), 2),
+				TestCase.of("one", Arguments.single(1), 2),
 				TestCase.of("two", Arguments.single(2), 3)
 			);
 		}
@@ -40,7 +40,7 @@ class ProblemRunnerTest {
 			return input + 1;
 		}
 
-		@Solution(id = "add two, subtract 1")
+		@Solution(id = "add two, subtract 1144444444422222")
 		public Integer addTwoSubOne(Integer input) {
 			return input + 2 - 1;
 		}

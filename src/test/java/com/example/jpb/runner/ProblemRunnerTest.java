@@ -50,7 +50,7 @@ class ProblemRunnerTest {
 	void shouldRunAllCasesAndAllSolutionsWithoutThrowing() {
 		BenchmarkConfig benchmarkConfig = BenchmarkConfig
 			.builder()
-			.warmupIterations(100_000)
+			.warmupIterations(1_000_000)
 			.measurementIterations(1_000_000)
 			.build();
 

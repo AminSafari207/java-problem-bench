@@ -116,44 +116,9 @@ renderer.renderProblemResult(result.getProblemResult(), options);
 renderer.renderBenchmarkResult(result.getProblemBenchmarkResult(), options);
 ```
 
-And here you can see the current console log:
+And here you can see the current output:
 
-<pre>
-┌──────────────────────────────────────────────────────────────────────────────────────┐
-│ Problem: <span class="blue">Dummy</span>                                                                       │
-└──────────────────────────────────────────────────────────────────────────────────────┘
-
-Correctness
-────────────────────────────────────────────────────────────────────────────────────────
-<span class="green">[PASS]</span>  Solution: "Add one"           id: "add-one"                 <span class="gray">4/4 passed</span>
-    <span class="green">[PASS]</span>  Case set: "Case set 01"       id: "case-set-01"             <span class="gray">2/2 passed</span>
-        <span class="green">[PASS]</span>  Test: "one"                   id: "one"                     
-        <span class="green">[PASS]</span>  Test: "two"                   id: "two"                     
-    <span class="green">[PASS]</span>  Case set: "case-set-02"       id: "case-set-02"             <span class="gray">2/2 passed</span>
-        <span class="green">[PASS]</span>  Test: "three"                 id: "three"                   
-        <span class="green">[PASS]</span>  Test: "four"                  id: "four"                    
-
-<span class="red">[FAIL]</span>  Solution: "add-two-subtrac…"  id: "add-two-subtract-one"    <span class="gray">3/4 passed</span>
-    <span class="green">[PASS]</span>  Case set: "Case set 01"       id: "case-set-01"             <span class="gray">2/2 passed</span>
-        <span class="green">[PASS]</span>  Test: "one"                   id: "one"                     
-        <span class="green">[PASS]</span>  Test: "two"                   id: "two"                     
-    <span class="red">[FAIL]</span>  Case set: "case-set-02"       id: "case-set-02"             <span class="gray">1/2 passed</span>
-        <span class="green">[PASS]</span>  Test: "three"                 id: "three"                   
-        <span class="red">[FAIL]</span>  Test: "four"                  id: "four"                    
-            Expected  -> 301
-            Actual    -> 302                    
-
-
-┌──────────────────────────────────────────────────────────────────────────────────────┐
-│ Benchmark For Problem: <span class="blue">Dummy</span>                                                         │
-└──────────────────────────────────────────────────────────────────────────────────────┘
-
-Benchmark
-────────────────────────────────────────────────────────────────────────────────────────
-Status      Solution                        Samples         Avg       Min       Max       
-────────────────────────────────────────────────────────────────────────────────────────
-<span class="green">SUCCESS</span>     Add one                         1000000         94 ns     70 ns     1.498 ms  
-</pre>
+![Example console output](assets/dummy-problem-output.png)
 
 A case set can be declared on a field or a no-argument method. you can attach multiple `@Solution` methods and the runner will hit all of them. every `@Problem`, `@CaseSet`, `@Solution` annotations and `TestCase` class needs an `id`. `displayName` is optional and falls back to `id` when you leave it blank.
 
@@ -222,27 +187,3 @@ This is a learning project first.
 The API and implementation will change while learn what is useful, safe, and maintainable.
 
 For the architectural details, go read [flow.md](docs/flow.md).
-
-[//]: # (-------------------------------------------------------------) 
-
-<style>
-.red {
-    color: #f85149;
-}
-
-.green {
-    color: #3fb950;
-}
-
-.yellow {
-    color: #d29922;
-}
-
-.blue {
-    color: #58a6ff;
-}
-
-.gray {
-    color: #8b949e;
-}
-</style>

@@ -8,18 +8,13 @@ import org.example.jpb.annotation.Contract;
 import org.example.jpb.annotation.Problem;
 import org.example.jpb.annotation.Solution;
 import org.example.jpb.core.model.Arguments;
-import org.example.jpb.core.model.ProblemContract;
 import org.example.jpb.core.model.TestCase;
 
 @Problem(id = "two-sum", displayName = "Two Sum")
+@Contract(accepts = { int[].class, Integer.class }, expects = int[].class)
 public class TwoSumProblem {
 
 	private static final int NO_SOLUTION = -1;
-
-	@Contract
-	static final ProblemContract CONTRACT = ProblemContract
-		.accepts(int[].class, Integer.class)
-		.expects(int[].class);
 
 	@CaseSet(id = "small-inputs", displayName = "Small inputs")
 	List<TestCase> smallInputs() {

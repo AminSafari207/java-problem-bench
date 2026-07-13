@@ -16,10 +16,8 @@ import org.junit.jupiter.api.Test;
 class ProblemRunnerTest {
 
 	@Problem(id = "problem-dummy", displayName = "Dummy")
+	@Contract(accepts = { Integer.class }, expects = Integer.class)
 	static class DummyProblem {
-
-		@Contract
-		static final ProblemContract contract = ProblemContract.accepts(Integer.class).expects(Integer.class);
 
 		@CaseSet(id = "case-set-01", displayName = "Case set 01")
 		public List<TestCase> cases() {

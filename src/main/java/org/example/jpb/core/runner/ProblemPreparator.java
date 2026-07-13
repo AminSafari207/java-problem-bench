@@ -59,86 +59,15 @@ public class ProblemPreparator {
 	}
 
 	private ProblemContract readContract(Class<?> problemClass) {
-		Field contractField = null;
+		Contract contract = problemClass.getAnnotation(Contract.class);
 
-		for (Field field : problemClass.getDeclaredFields()) {
-			if (!field.isAnnotationPresent(Contract.class)) {
-				continue;
-			}
-
-			if (contractField != null) {
-				throw new IllegalStateException(
-					"Problem class " + problemClass.getName() + " must declare exactly one @Contract field"
-				);
-			}
-
-			contractField = field;
-		}
-
-		if (contractField == null) {
+		if (contract == null) {
 			throw new IllegalStateException(
-				"Problem class " + problemClass.getName() + " must declare a @Contract field"
+				"Problem class '" + problemClass.getName() + "' must declare a @Contract annotation"
 			);
 		}
 
-		int modifiers = contractField.getModifiers();
-
-		if (!Modifier.isStatic(modifiers)) {
-			throw new IllegalStateException(
-				"@Contract field '" +
-				contractField.getName() +
-				"' in " +
-				problemClass.getName() +
-				" must be static"
-			);
-		}
-
-		if (!Modifier.isFinal(modifiers)) {
-			throw new IllegalStateException(
-				"@Contract field '" +
-				contractField.getName() +
-				"' in " +
-				problemClass.getName() +
-				" must be final"
-			);
-		}
-
-		if (!ProblemContract.class.equals(contractField.getType())) {
-			throw new IllegalStateException(
-				"@Contract field '" +
-				contractField.getName() +
-				"' in " +
-				problemClass.getName() +
-				" must be of type " +
-				ProblemContract.class.getName()
-			);
-		}
-
-		try {
-			contractField.setAccessible(true);
-
-			Object value = contractField.get(null);
-
-			if (value == null) {
-				throw new IllegalStateException(
-					"@Contract field '" +
-					contractField.getName() +
-					"' in " +
-					problemClass.getName() +
-					" must not be null"
-				);
-			}
-
-			return (ProblemContract) value;
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(
-				"Failed to access @Contract field '" +
-				contractField.getName() +
-				"' in " +
-				problemClass.getName(),
-				e
-			);
-		}
+		return ProblemContract.of(contract.accepts(), contract.expects());
 	}
 
 	private List<PreparedCaseSet> resolveCaseSets(Class<?> problemClass, Object problemInstance) {

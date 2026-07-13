@@ -19,7 +19,7 @@ When i'm working through algorithm problems i usually end up with one solution m
 
 So i started sketching a model where a problem is just a class:
 
-- `@Contract` says what the test cases and solutions arguments signature should look like
+- `@Contract` on the problem class says what the test cases and solution method signatures should look like
 - `@CaseSet` groups related test cases together
 - `@Solution` marks the implementations you want to run
 
@@ -60,10 +60,8 @@ Like this:
 
 ```java
 @Problem(id = "problem-dummy", displayName = "Dummy")
+@Contract(accepts = { Integer.class }, expects = Integer.class)
 static class DummyProblem {
-
-    @Contract
-    static final ProblemContract contract = ProblemContract.accepts(Integer.class).expects(Integer.class);
 
     @CaseSet(id = "case-set-01", displayName = "Case set 01")
     public List<TestCase> cases() {
@@ -154,7 +152,7 @@ No CLI yet. (is it really required tho?)
 Stuff that's working and i'm happy with:
 
 - [x] Annotation-based problem definitions
-- [x] `@Contract` with a small fluent builder (`accepts` / `expects`)
+- [x] `@Contract` on the problem class (`accepts` / `expects`)
 - [x] `@CaseSet` on methods and fields, single case or a list
 - [x] `@Solution` — run multiple implementations against the same cases
 - [x] Stable `id` + optional `displayName` on problems, case sets, solutions, and test cases

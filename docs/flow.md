@@ -60,7 +60,7 @@ The system has five layers:
 | Annotation | Target | Purpose |
 |---|---|---|
 | `@Problem(id, displayName?)` | class | Marks a class as a runnable problem |
-| `@Contract` | static final field | Holds a `ProblemContract` describing the method and test case arguments signature |
+| `@Contract(accepts, expects)` | class | Declares the parameter and return types that case sets and solutions must match |
 | `@CaseSet(id, displayName?)` | method or field | Provides one or more `TestCase` instances as a grouped set |
 | `@Solution(id, displayName?)` | method | A candidate solution to run against all case sets |
 | `@Generator` | method | Planned: generate random cases at runtime (not wired yet) |
@@ -86,14 +86,12 @@ Values must be non-blank and must not contain leading or trailing whitespace.
 
 ### Contract rules
 
-The `@Contract` field must be:
+The problem class must declare exactly one `@Contract` annotation.
 
-- `static`
-- `final`
-- of type `ProblemContract`
-- non-null
+- `accepts` — array of parameter types, in order
+- `expects` — return type
 
-There must be exactly one per problem class.
+During preparation, the annotation is read from the class and converted into a `ProblemContract` for validation.
 
 ### Case set rules
 
@@ -117,15 +115,19 @@ Most model classes are immutable builder classes validated through `ModelChecks`
 
 ### ProblemContract
 
-Built with a small fluent API:
+Internal model built from `@Contract` during preparation:
 
 ```java
-ProblemContract.accepts(Integer.class, String.class).expects(Boolean.class);
+ProblemContract.of(new Class<?>[] { Integer.class, String.class }, Boolean.class);
 ```
 
-Stores `Class<?>[] acceptedTypes` and `Class<?> expectedType`. Used only for validation and documentation at runtime.
+Stores `Class<?>[] acceptedTypes` and `Class<?> expectedType`. Used only for validation at runtime; it does not perform any invocation itself.
 
-it does not perform any invocation itself.
+Problem authors declare the contract on the class instead:
+
+```java
+@Contract(accepts = { Integer.class, String.class }, expects = Boolean.class)
+```
 
 ### Arguments
 
@@ -245,7 +247,7 @@ Creates an instance via the no-argument constructor (made accessible via reflect
 
 ### 3. Read contract
 
-Scans declared fields for `@Contract`, validates modifiers and type, reads the static field value.
+Reads `@Contract` from the problem class and builds a `ProblemContract` from `accepts` and `expects`.
 
 ### 4. Collect case sets
 

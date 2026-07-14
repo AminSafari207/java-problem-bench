@@ -176,6 +176,7 @@ Stuff i still need to do:
     - [ ] Load compiled classes from `.class` files
     - [ ] Load problems from external `.jar` files
     - [ ] Support raw `.java` source files via compilation + loading
+- [ ] Compile-time validation with annotation processors
 
 
 ## Notes
